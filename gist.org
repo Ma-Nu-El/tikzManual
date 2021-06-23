@@ -1,0 +1,240 @@
+:PROPERTIES:
+:ID:       d629f081-81b6-4066-93e2-b582383a2bc9
+:END:
+#+TITLE: Gist
+- https://gist.githubusercontent.com/RyanGreenup/79a8eb780ff958267730c7e5845f1045/raw/4e07dd0e3a889d88b103834c1257c5b83aa54aed/Using-tikz-in-markup.org
+
+#+LATEX_HEADER: \usepackage{$HOME/Dropbox/profiles/Templates/LaTeX/ScreenStyleDV}
+#+LATEX_HEADER: \usepackage{svg}
+#+LATEX_HEADER: \usepackage{tikz}
+
+* TOC :TOC_2:noexport:
+- [[#introduction][Introduction]]
+- [[#org-mode][Org-Mode]]
+  - [[#using-a-source-code-block-for-tikz][Using a Source Code Block for Tikz]]
+  - [[#preview-tikz-inside-org-mode-without-a-source-block][Preview Tikz Inside Org Mode Without a Source Block]]
+- [[#markdown][Markdown]]
+  - [[#upmath][UpMath]]
+  - [[#markdown-preview-enhanced][Markdown Preview Enhanced]]
+  - [[#r-markdown][*/R/*-/Markdown/]]
+
+* Introduction
+
+So consider the tikz code at listing [[tikz-eg1]] and figure [[Tikz-out1]]:
+
+#+ATTR_LATEX: :options commentstyle=\bfseries
+#+NAME: tikz-eg1
+#+CAPTION: Generate Exemplar Tikz Code, (from [[https://www.homepages.ucl.ac.uk/~ucahjde/blog/tikz.html][JD Evans]])
+#+HEADER: :exports both
+#+HEADER: :results output graphics file
+#+HEADER: :file contour.svg
+#+HEADER: :imagemagick yes
+#+BEGIN_SRC latex
+\begin{tikzpicture}
+\draw[->] (-3,0) -- (-2,0) arc[radius=0.5cm,start angle=-180,end angle=0] (-1,0) -- (1,0) arc[radius=0.5cm,start angle=180,end angle=0] (2,0) -- (3,0);
+\filldraw (-1.5,0) circle[radius=1mm];
+\filldraw (1.5,0) circle[radius=1mm];
+\end{tikzpicture}
+#+END_src
+
+#+NAME: Tikz-out1
+#+CAPTION: Output of Tikz Code from listings [[tikz-eg1]]
+#+RESULTS: tikz-eg1
+[[file:contour.svg]]
+
+
+
+Let's consider how to use this inside ~org-mode~ and Markdown.
+
+* Org-Mode
+
+** Using a Source Code Block for Tikz
+   :PROPERTIES:
+   :CUSTOM_ID: generating-functions
+   :END:
+
+
+Using the code provided in listing [[tikz-eg-manyline]], will allow $\textrm{Ti}\textit{k}\textrm{Z}$ code to be exported from ~org-mode~ as $\LaTeX$ and /HTML/.
+
+#+NAME: tikz-eg-manyline
+#+CAPTION: How to produce Tikz in Org-mode
+#+begin_src bash
+,#+LATEX_HEADER: \usepackage{svg}
+,#+LATEX_HEADER: \usepackage{tikz}
+
+,#+NAME: tikz-eg-oneline
+,#+CAPTION: How to produce Tikz in Org-mode
+
+,#+HEADER: :exports results
+,#+HEADER: :imagemagick yes
+,#+HEADER: :results output graphics file
+,#+HEADER: :file contour.svg
+,#+BEGIN_SRC latex
+\begin{tikzpicture}
+\draw[->] (-3,0) -- (-2,0) arc[radius=0.5cm,start angle=-180,end angle=0] (-1,0) -- (1,0) arc[radius=0.5cm,start angle=180,end angle=0] (2,0) -- (3,0);
+\filldraw (-1.5,0) circle[radius=1mm];
+\filldraw (1.5,0) circle[radius=1mm];
+\end{tikzpicture}
+,#+END_src
+#+end_src
+
+#+RESULTS:
+[[file:contour.svg]]
+
+*** Explaining the Header Arguments
+
+- ~#+LATEX_HEADER~ :: Add arguments to the $\LaTeX$ preamble when performing ~org-mode~ export to $\LaTeX$.
+  - ~usepackage{svg}~ :: This package converts an SVG image back to a PNG so that it can be included in a LaTeX Document.
+  - ~usepackage{TikZ}~ :: The TikZ package, necessary to generate TikZ graphics.
+  - These should be put at the very top of an ~org~ file much like a preamble, they affect the entire buffer and only need to be added once.
+  - *WARNING* :: If these are included in a ~.sty~ file, take note of the following points:
+    - $\LaTeX$ does not support =~=, instead use ~$HOME~
+    - In a ~.sty~ file ~\RequirePackage{foo}~ should be used instead of ~usepackage~
+    - The correct syntax is to drop the ~.sty~ extension in the preamble
+      - so to use the stylesheet =~/Templates/mystyle.sty= use the following header argument at the top of the top of the ~org~-file ~,#+LATEX_HEADER: \usepackage{$HOME/Templatex/mystyle}~
+- ~,#+NAME:~ :: This gives the listing a name so that later it can be referred to using the ~[[foo]]~ syntax
+  - Be mindful that this is distinct from the ~org-ref~ ~ref:label-name~ syntax.
+  - Also be aware that this usually must be pared with a caption for it to be referencable in $\LaTeX$.
+- ~,#+CAPTION~: :: This gives the listing a caption to describe it and provide a place to put the number.
+  - *WARNING* :: If the source code block is switched from ~:output both~ to ~:output results~ the code block will not be shown in the latex export, this means that there will be nothing for a ~[[foo]]~ link to refer to even if there is a ~,#+NAME:foo~ header. So be very careful about referring to a code block that you are unsure of including in the output because it can cause headaches.
+- ~#+HEADER~ :: Add arguments to the header of a source code block, these could just as easily be done in one line as shown in listing ??
+  - ~:exports~ :: This controls what is exported
+    - ~both~ :: for the code and the output
+    - ~code~ :: for only the code
+    - ~results~ :: Exports only the results?
+      - +~output~+ :: This is incorrect Syntax, don't use it, I don't know why, but I always always type in ~:exports output~ which is *incorrect*, it should be ~:exports results~ and then ~:results output~ or whatever you want the results to be.
+  - ~results~ :: This controls what contitutes the output
+    - ~:results output~ :: This provide the ~STDOUT~, consider for example ~ls~ in ~bash~
+    - ~:results output graphics file~ :: This will provide any graphics output as a file and link to that file as an inline image in the results.
+      - This is necessary for the TikZ picture to be included as output (It's also necessary for using ggplot as well)
+  - ~:imagemagick~ :: Ensures that imagemagick is used (which is needed to convert the PDF to SVG).
+  - ~:file~ :: Gives the File name to save the output graphic as, you'll need to remember to change this.
+    - I played around with automatically generating a random name, but, it's more effort than it's worth and being forced to come up with semi-descriptive names promotes sanity.
+  - If a header argument will occur often throughout a buffer the ~,#+PROPERTY: header-args:~  to apply standard settings across the ~src~ code blocks
+    - For example ~,#+HEADER :eval never-export~ can be placed at the top of the org file to ensure that every source code block will behave as if ~:eval never-export~ was in the src code block header, meaning, the code block won't evaluate on export (very helpful for note on */R/* for example)
+
+*** One Line
+
+It may be more convenient to use the following syntax to keep the src header on one line (presuming ~,#+LATEX_HEADER~ is provided at the top of the ~org~ file) as shown in listing :
+
+#+NAME: tikz-eg-oneline
+#+CAPTION: How to produce Tikz in Org-mode
+#+begin_src bash
+#+BEGIN_SRC latex :exports both :results output graphics file :file contour.svg :imagemagick yes
+\begin{tikzpicture}
+\draw[->] (-3,0) -- (-2,0) arc[radius=0.5cm,start angle=-180,end angle=0] (-1,0) -- (1,0) arc[radius=0.5cm,start angle=180,end angle=0] (2,0) -- (3,0);
+\filldraw (-1.5,0) circle[radius=1mm];
+\filldraw (1.5,0) circle[radius=1mm];
+\end{tikzpicture}
+\#+END_src
+#+end_src
+
+#+RESULTS:
+[[file:contour.svg]]
+
+** Preview Tikz Inside Org Mode Without a Source Block
+Tikz can be previewed inline using the The [[https://github.com/TobiasZawada/texfrag][texfrag]] package, this means that the /TikZ/ will only be visible in $\LaTeX$ output, or inline in the ~org~ file.
+
+Using /TikZ/ this way doesn't bring much to the table over using the source code block discussed at section [[#generating-functions]] and shown in listing [[tikz-eg-manyline]] but is more convenient if:
+
+- The document will only go to $\LaTeX$
+  - In which case having raw /TikZ/ as opposed to an SVG file in the ~.tex~ would be much more ideal
+- The [[https://github.com/TobiasZawada/texfrag][texfrag]] package is being used
+  - I can't get ~org-latex-preview~ to work with /TikZ/ and TexFrag is faster and scales the pictures automatically, so it's superior anyway.
+
+
+In order to get an inline preview of /TikZ/ code, put the /LISP/ provided at listing [[lisp-for-tikz-preview]]  in the =~/.emacs.d/config.el= (or execute the src block in the ~org~ buffer and then ~M-x org-mode Ret~)
+
+#+NAME: lisp-for-tikz-preview
+#+CAPTION: Lisp to Enable in place Preview of Tikz
+#+begin_src elisp :eval never-export
+(add-hook 'org-mode-hook
+  (lambda ()
+    (texfrag-mode)
+  )
+
+(add-to-list 'org-latex-packages-alist
+             '("" "tikz" t))
+(eval-after-load "preview"
+  '(add-to-list 'preview-default-preamble "\\PreviewEnvironment{tikzpicture}" t))
+#+end_src
+
+
+place some raw /TikZ/ code in the document and run ~M-x texfrag-document~ and the /TikZ/ code should be previewed in place.
+
+* Markdown
+
+** UpMath
+   :PROPERTIES:
+   :CUSTOM_ID: upmath
+   :END:
+[[https://upmath.me/][Upmath]] is essentially an awesome piece of JavaScript that will render Tikz in place, It's very cool and compatible with ~pandoc~ --> LaTeX.
+
+To use it just put the following code from listing [[use-upmath-tikz-md]] into a /MarkDown/ file (if using VSCode make sure that the markdown file can execute arbitrary script and/or consider making a local copy of the /JavaScript/ as shown in listing [[local-js]]):
+
+#+NAME: use-upmath-tikz-md
+#+CAPTION: How to Use Upmath to Render a /TikZ/ preview in a /Markdown/ document.
+#+begin_src html
+<p>
+<script src="https://i.upmath.me/latex.js"></script>
+\begin{tikzpicture}
+\draw[->] (-3,0) -- (-2,0) arc[radius=0.5cm,start angle=-180,end angle=0] (-1,0) -- (1,0) arc[radius=0.5cm,start angle=180,end angle=0] (2,0) -- (3,0);
+\filldraw (-1.5,0) circle[radius=1mm];
+\filldraw (1.5,0) circle[radius=1mm];
+\end{tikzpicture}
+</p>
+#+end_src
+
+
+*** Local JS
+
+Alternatively if you want to have a local copy of the /JS/, consider downloading the JavaScript as shown in listing [[dl-js]] and then create a /Markdown/ File referencing that JS accordingly as shown in listing [[local-js]]. This however will not work offline, although self-hosting or a local-server is an option, [[https://github.com/parpalak/upmath.me][See the corresponding /GitHub/ page]].
+
+#+NAME: dl-js
+#+CAPTION: Download the JavaScript for use locally
+#+begin_src bash
+curl https://i.upmath.me/latex.js > ~/bin/upmath-latex.js > /tmp/upmath-latex.js
+#+end_src
+
+#+NAME: local-js
+#+CAPTION: Using a relative link to the JS
+#+begin_src html
+<p>
+<script src="https://i.upmath.me/latex.js"></script>
+\begin{tikzpicture}
+\draw[->] (-3,0) -- (-2,0) arc[radius=0.5cm,start angle=-180,end angle=0] (-1,0) -- (1,0) arc[radius=0.5cm,start angle=180,end angle=0] (2,0) -- (3,0);
+\filldraw (-1.5,0) circle[radius=1mm];
+\filldraw (1.5,0) circle[radius=1mm];
+\end{tikzpicture}
+</p>
+#+end_src
+
+*** Exporting to LaTeX
+To Export this markdown to LaTeX, create a ~/tmp/mystyle.sty~ file that has ~\RequirePackage{tikz, pstricks, pgfplots, amsmath}~ in it somewhere and use the call to ~pandoc~ as shown in listing [[simple-pandoc]]. Listing [[pandoc-with-listings]] is what I usually use to get formatted code via the ~listings~ package.
+
+#+NAME: simple-pandoc
+#+CAPTION: How to use ~pandoc~ with /Upmath/, /TikZ/, and Markdown
+#+begin_src bash
+pandoc -s --self-contained "/tmp/mymarkdown.md" -H /tmp/mystyle.sty -o /tmp/note.pdf
+#+end_src
+
+#+NAME: pandoc-with-listings
+#+CAPTION: Use ~pandoc~, similarly to [[simple-pandoc]], with the ~listings~ package.
+#+begin_src bash
+pandoc -s --self-contained "/tmp/mymarkdown.md" --listings --toc -H ~/Templates/LaTeX/Mystyle.sty --pdf-engine-opt=-shell-escape -o /tmp/note.pdf
+#+end_src
+
+
+** Markdown Preview Enhanced
+Markdown Preview-Enhanced in Atom and VSCode also allow previewing /TikZ/ Code which I personally think is really handy.
+
+It just doesn't work with ~pandoc~ because the /TikZ/ code is wrapped in a code block.
+
+
+Also worth mentioning that /UpMath/ doesn't appear to work with /Markdown Preview Enhanced/.
+
+** */R/*-/Markdown/
+Probably worth noting that */R/*-/Markdown/ does this pretty much out of the
+box, so you could just write up a document in */R/*-/Markdown/ with /TikZ/ and
+then export it to HTML/MD/PDF. Using */R/*-/Studio/ to perform all the ~knitR~
+magic is quite painless as well.
