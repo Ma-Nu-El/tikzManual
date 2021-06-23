@@ -1,0 +1,606 @@
+:PROPERTIES:
+:ID:       c79262dd-dc13-4daf-8c53-9ce575d6fe38
+:END:
+#+title: Tikz & pgf Manual - for version 3.1.9a (Org-mode adaptation)
+#+LATEX_HEADER: \usepackage{tikz}
+# need that if you want drawings with TikZ.
+#+OPTIONS: toc:4
+
+# The file:
+# - [[file:~/myDrive/org/pgfmanual.pdf]]
+
+
+* TOC :TOC_4:noexport:
+- [[#notes][Notes]]
+- [[#intro][Intro]]
+  - [[#the-layers-below-tikz][The Layers Below TikZ]]
+  - [[#comparison-with-other-graphics-packages][Comparison with Other Graphics Packages]]
+  - [[#utility-packages][Utility Packages]]
+  - [[#how-to-read-this-manual][How to Read This Manual]]
+  - [[#authors-and-acknowledgements][Authors and Acknowledgements]]
+- [[#part-1-tutorials-and-guidelines][Part 1: Tutorials and Guidelines]]
+  - [[#example-a-house-draw-with-just-one-line][example: a house draw with just one line.]]
+  - [[#tutorial-a-picture-for-karls-students][Tutorial: A Picture for Karl’s Students]]
+    - [[#problem-statement][Problem Statement]]
+    - [[#setting-up-the-environment][Setting up the Environment]]
+    - [[#straight-path-construction][Straight Path Construction]]
+    - [[#curved-path-construction][Curved Path Construction]]
+    - [[#circle-path-construction][Circle Path Construction]]
+    - [[#rectangle-path-construction][Rectangle Path Construction]]
+    - [[#grid-path-construction][Grid Path Construction]]
+
+* Table of contents of the book :noexport:
+# - [[file:~/myDrive/org/pgfmanual.pdf::3]]
+* Notes
+- This is a long +ass+ book
+- I'm trying to make a summary of the parts of this book. Then I'll do a
+  summary of this summary with only the figures and the corresponding code.
+  This is because the book --- as far as I've read --- goes telling the
+  tips in a story-line fashion, which is /very/ good for learning purposes, but
+  not so much as a reference tool. Super recommended for newbies like me.
+- Also, I'm reading the =.pdf= where as having the =org= source code for
+  it might be handy for the future me.
+
+* Intro
+# - [[file:~/myDrive/org/pgfmanual.pdf::27]]
+
+TikZ is a front-end for the pgf system.
+
+#+begin_quote
+What began as a small LaTeX style for creating the graphics in my
+(Till Tantau’s) PhD thesis directly with pdfLaTeX has now grown to become a
+full-blown graphics language with a manual of over a thousand pages.
+#+end_quote
+
+#+begin_quote
+“What is TikZ?” Basically, it just defines a number of TEX commands
+that draw graphics.
+#+end_quote
+
+#+begin_quote
+In a sense, when you use TikZ you “program” your graphics, just as you
+“program” your document when you use TEX.
+#+end_quote
+
+#+begin_quote
+With TikZ you get all the advantages of the “TEX-approach to typesetting” for
+your graphics: quick creation of simple graphics, precise positioning, the use
+of macros, often superior typography. You also inherit all the disadvantages:
+steep learning curve, no wysiwyg, small changes require a long recompilation
+time, and the code does not really “show” how things will look like.
+#+end_quote
+
+And pgf?
+
+#+begin_quote
+TikZ started out as a project to implement TEX graphics macros that can be used
+both with pdfLaTeX and also with the classical (PostScript-based) LaTeX.
+In other words, I wanted to implement a “portable graphics format” for TEX –
+hence the name pgf. These early macros are still around and they form the
+“basic layer” of the system described in this manual, but most of the
+interaction an author has these days is with TikZ – which has become a whole
+language of its own.
+#+end_quote
+
+** The Layers Below TikZ
+# - [[file:~/myDrive/org/pgfmanual.pdf::27]]
+
+- System Layer:
+  This layer provides a complete abstraction of what is going on
+  “in the driver”. The driver is a program like dvips or dvipdfm that takes a
+  .dvi file as input and generates a .ps or a .pdf file. (The pdftex program
+  also counts as a driver, even though it does not take a .dvi file as input.
+  Never mind.) Each driver has its own syntax for the generation of graphics,
+  causing headaches to everyone who wants to create graphics in a portable way.
+  pgf’s system layer “abstracts away” these differences. The system layer is as
+  “minimalistic” as possible since each additional command makes it more work
+  to port pgf to a new driver.
+
+  As a user, you will not use the system layer directly.
+
+- Basic Layer:
+  The basic layer provides a set of basic commands that allow you to produce
+  complex graphics in a much easier manner than by using the system layer
+  directly. For example, the system layer provides no commands for creating
+  circles since circles can be composed from the more basic Bézier curves
+  (well, almost). However, as a user you will want to have a simple command to
+  create circles (at least I do) instead of having to write down half a page of
+  Bézier curve support coordinates. Thus, the basic layer provides a command
+  ~\pgfpathcircle~ that generates the necessary curve coordinates for you.
+
+  The basic layer consists of a /core/, which consists of several interdependent
+  packages that can only be loaded /en bloc/, and additional modules that
+  extend the core by more special-purpose commands like node management or a
+  plotting interface. For instance, the =beamer= package uses only the core and
+  not, say, the shapes modules.
+
+
+As the /basic/ layer is a front-end for the /system/ layer, =TikZ= is a
+front-end to the /basic/ layer.
+
+#+begin_center
+System <- Basic <- TikZ
+#+end_center
+
+
+#+begin_quote
+The syntax [of TikZ] is a mixture of =metafont= and =pstricks= and some
+ideas of myself.
+#+end_quote
+
+
+#+begin_quote
+Since most users will only use TikZ and almost no one will use the /system/
+layer directly, this manual is mainly about TikZ in the first parts; the
+/basic/ layer and the /system/ layer are explained at the end.
+#+end_quote
+
+** Comparison with Other Graphics Packages
+# - [[file:~/myDrive/org/pgfmanual.pdf::28]]
+
+
+1. The standard LaTeX {picture} environment allows you to create simple
+   graphics, but little more. This is certainly not due to a lack of knowledge
+   or imagination on the part of LaTeX’s designer(s). Rather, this is the
+   price paid for the {picture} environment’s portability: It works together
+   with all backend drivers.
+
+2. The pstricks package is certainly powerful enough to create any conceivable
+   kind of graphic, but it is not really portable. Most importantly, it does
+   not work with pdftex nor with any other driver that produces anything but
+   PostScript code.
+
+   Compared to TikZ, pstricks has a similar support base. There are many nice
+   extra packages for special purpose situations that have been contributed by
+   users over the last decade. The TikZ syntax is more consistent than the
+   pstricks syntax as TikZ was developed “in a more centralized manner” and
+   also “with the shortcomings on pstricks in mind”.
+
+3. The xypic package is an older package for creating graphics. However, it is
+   more difficult to use and to learn because the syntax and the documentation
+   are a bit cryptic.
+4. The dratex package is a small graphic package for creating a graphics.
+   Compared to the other package, including TikZ, it is very small, which may
+   or may not be an advantage.
+5. The metapost program is a powerful alternative to TikZ. It used to be an
+   external program, which entailed a bunch of problems, but in LuaTEX it is
+   now built in. An obstacle with metapost is the inclusion of labels. This
+   is much easier to achieve using pgf.
+6. The xfig program is an important alternative to TikZ for users who do not
+   wish to “program” their graphics as is necessary with TikZ and the other
+   packages above. There is a conversion program that will convert xfig
+   graphics to TikZ.
+
+
+** Utility Packages
+# - [[file:~/myDrive/org/pgfmanual.pdf::28]]
+
+
+#+begin_quote
+The pgf package comes along with a number of utility package that are not
+really about creating graphics and which can be used independently of pgf.
+However, they are bundled with pgf, partly out of convenience, partly because
+their functionality is closely intertwined with pgf. These utility packages are:
+#+end_quote
+
+1. The pgfkeys package defines a powerful key management facility. It can be
+   used completely independently of pgf.
+2. The pgffor package defines a useful \foreach statement.
+3. The pgfcalendar package defines macros for creating calendars. Typically,
+   these calendars will be rendered using pgf’s graphic engine, but you can use
+   pgfcalendar also typeset calendars using normal text. The package also
+   defines commands for “working” with dates.
+4. The pgfpages package is used to assemble several pages into a single page.
+   It provides commands for assembling several “virtual pages” into a single
+   “physical page”. The idea is that whenever TEX has a page ready for
+   “shipout”, pgfpages interrupts this shipout and instead stores the page to
+   be shipped out in a special box. When enough “virtual pages” have been
+   accumulated in this way, they are scaled down and arranged on a
+   “physical page”, which then really shipped out. This mechanism allows you
+   to create “two page on one page” versions of a document directly inside
+   LaTeX without the use of any external programs. However, pgfpages can do
+   quite a lot more than that. You can use it to put logos and watermark on
+   pages, print up to 16 pages on one page, add borders to pages, and more.
+
+
+** How to Read This Manual
+# - [[file:~/myDrive/org/pgfmanual.pdf::29]]
+
+
+#+begin_quote
+This manual describes both the design of TikZ and its usage. [...] The commands
+and subpackages that are easiest and most frequently used are described first,
+more low-level and esoteric features are discussed later. [...] you might wish
+to skim through the description of TikZ. Typically, you will not need to read
+the sections on the /basic/ layer. You will only need to read the part on the
+/system/ layer if you intend to write your own frontend or if you wish to port
+pgf to a new driver.
+#+end_quote
+
+** Authors and Acknowledgements
+# - [[file:~/myDrive/org/pgfmanual.pdf::29]]
+
+
+#+begin_quote
+The bulk of the pgf system and its documentation was written by Till Tantau. A
+further member of the main team is Mark Wibrow, who is responsible, for example,
+for the pgf mathematical engine, many shapes, the decoration engine, and
+matrices. The third member is Christian Feuersänger who contributed the
+floating point library, image externalization, extended key processing, and
+automatic hyperlinks in the manual. Furthermore, occasional contributions have
+been made by Christophe Jorssen, Jin-Hwan Cho, Olivier Binda, Matthias Schulz,
+Renée Ahrens, Stephan Schuster, and Thomas Neumann. Additionally, numerous
+people have contributed to the pgf system by writing emails, spotting bugs, or
+sending libraries and patches. Many thanks to all these people, who are too
+numerous to name them all!
+#+end_quote
+
+
+* Part 1: Tutorials and Guidelines
+# - [[file:~/myDrive/org/pgfmanual.pdf::30]]
+** example: a house draw with just one line.
+:PROPERTIES:
+:ID:       13c9052d-c206-4332-ba3c-19e384251ced
+:END:
+
+#+NAME: [[id:13c9052d-c206-4332-ba3c-19e384251ced][example: a house draw with just one line.]]
+#+CAPTION: House with one line.
+#+begin_latex
+\begin{tikzpicture}
+\tikz \draw[thick,rounded corners=8pt]
+(0,0) -- (0,2) -- (1,3.25) -- (2,2) -- (2,0) -- (0,2) --
+(2,2) -- (0,0) -- (2,0);
+\end{tikzpicture}
+#+end_latex
+
+#+begin_example latex
+\begin{tikzpicture}
+\tikz \draw[thick,rounded corners=8pt]
+(0,0) -- (0,2) -- (1,3.25) -- (2,2) -- (2,0) -- (0,2) --
+(2,2) -- (0,0) -- (2,0);
+\end{tikzpicture}
+#+end_example
+
+** Tutorial: A Picture for Karl’s Students
+# - [[file:~/myDrive/org/pgfmanual.pdf::31]]
+
+#+begin_quote
+This tutorial is intended for new users of TikZ. It does not give an
+exhaustive account of all the features of TikZ, just of those that you are
+likely to use right away.
+
+Karl is a math and chemistry high-school teacher. He used to create the
+graphics in his worksheets and exams using L A TEX’s {picture} environment.
+While the results were acceptable, creating the graphics often turned out to
+be a lengthy process. Also, there tended to be problems with lines having
+slightly wrong angles and circles also seemed to be hard to get right.
+Naturally, his students could not care less whether the lines had the exact
+right angles and they find Karl’s exams too difficult no matter how nicely
+they were drawn. But Karl was never entirely satisfied with the result.
+
+Karl’s son, who was even less satisfied with the results (he did not have to
+take the exams, after all), told Karl that he might wish to try out a new
+package for creating graphics. A bit confusingly, this package seems to have
+two names: First, Karl had to download and install a package called pgf. Then
+it turns out that inside this package there is another package called TikZ,
+which is supposed to stand for “TikZ ist kein Zeichenprogramm”. Karl finds
+this all a bit strange and TikZ seems to indicate that the package does not
+do what he needs. However, having used gnu software for quite some time and
+“gnu not being Unix”, there seems to be hope yet. His son assures him that
+TikZ’s name is intended to warn people that TikZ is not a program that you can
+use to draw graphics with your mouse or tablet. Rather, it is more like a
+“graphics language”.
+#+end_quote
+
+*** Problem Statement
+# - [[file:~/myDrive/org/pgfmanual.pdf::31]]
+[The teacher wants to teach his students about sine and cosine.]
+
+*** Setting up the Environment
+# - [[file:~/myDrive/org/pgfmanual.pdf::31]]
+
+#+begin_export latex
+We are working on
+\begin{tikzpicture}
+\draw (-1.5,0) -- (1.5,0);
+\draw (0,-1.5) -- (0,1.5);
+\end{tikzpicture}
+#+end_export
+
+#+begin_example
+(1) \begin{tikzpicture}
+(2) \draw (-1.5,0) -- (1.5,0);
+(3) \draw (0,-1.5) -- (0,1.5);
+(4) \end{tikzpicture}
+#+end_example
+
+- Second line: "a straight line from the point at position (−1.5, 0) to
+  the point at position (0, 1.5)"
+
+
+Or in the old fashion way (=TeX=):
+
+#+begin_example
+\input tikz.tex
+\baselineskip=12pt
+\hsize=6.3truein
+\vsize=8.7truein
+We are working on
+\tikzpicture
+\draw (-1.5,0) -- (1.5,0);
+\draw (0,-1.5) -- (0,1.5);
+\endtikzpicture.
+\bye
+#+end_example
+
+*** Straight Path Construction
+# - [[file:~/myDrive/org/pgfmanual.pdf::31]]
+
+
+#+begin_quote
+The basic building block of all pictures in TikZ is the /path/. A /path/ is a
+series of straight lines and curves that are connected (that is not the whole
+picture, but let us ignore the complications for the moment). You start a /path/
+by specifying the coordinates of the start position as a point in round
+brackets, as in (0,0). This is followed by a series of “path extension
+operations”. The simplest is --, which we used already. It must be followed
+by another coordinate and it extends the /path/ in a straight line to this new
+position. For example, if we were to turn the two paths of the axes into one
+/path/, the following would result:
+#+end_quote
+
+#+begin_export latex
+\tikz \draw (-1.5,0) -- (1.5,0) -- (0,-1.5) -- (0,1.5);
+#+end_export
+
+#+begin_example
+\tikz \draw (-1.5,0) -- (1.5,0) -- (0,-1.5) -- (0,1.5);
+#+end_example
+
+
+#+begin_quote
+Karl is a bit confused by the fact that there is no ~{tikzpicture}~ environment,
+here. Instead, the little command ~\tikz~ is used. This command either takes one
+argument (starting with an opening brace as in ~\tikz{\draw (0,0) -- (1.5,0)}~,
+which yields /[horizontal line]/) or collects everything up to the next
+semicolon and puts it inside a ~{tikzpicture}~ environment. As a rule of thumb,
+all TikZ graphic drawing commands must occur as an argument of ~\tikz~ or inside
+a ~{tikzpicture}~ environment. Fortunately, the command ~\draw~ will only be
+defined inside this environment, so there is little chance that you will
+accidentally do something wrong here.
+#+end_quote
+
+*** Curved Path Construction
+# - [[file:~/myDrive/org/pgfmanual.pdf::33]]
+
+The next thing Karl wants to do is to draw the circle. For this, straight
+lines obviously will not do. Instead, we need some way to draw curves. For
+this, TikZ provides a special syntax. One or two “control points” are needed.
+The math behind them is not quite trivial, but here is the basic idea: Suppose
+you are at point \(x\) and the first control point is \(y\). Then the curve
+will start “going in the direction of \(y\) at \(x\)”, that is, the tangent of
+the curve at \(x\) will point toward \(y\). Next, suppose the curve should end
+at \(z\) and the second support point is \(w\). Then the curve will, indeed,
+end at \(z\) and the tangent of the curve at point \(z\) will go through \(w\).
+
+Here is an example (the control points have been added for clarity):
+
+#+begin_export latex
+\begin{tikzpicture}
+\filldraw [gray]
+(0,0) circle [radius=2pt]
+(1,1) circle [radius=2pt]
+(2,1) circle [radius=2pt]
+(2,0) circle [radius=2pt];
+\draw (0,0) .. controls (1,1) and (2,1) .. (2,0);
+\end{tikzpicture}
+#+end_export
+
+#+begin_example latex
+\begin{tikzpicture}
+\filldraw [gray]
+(0,0) circle [radius=2pt]
+(1,1) circle [radius=2pt]
+(2,1) circle [radius=2pt]
+(2,0) circle [radius=2pt];
+\draw (0,0) .. controls (1,1) and (2,1) .. (2,0);
+\end{tikzpicture}
+#+end_example
+
+The general syntax for extending a path in a “curved” way is .. controls
+〈 /first control point/ 〉 and 〈 /second control point/ 〉 ..
+〈 /end point/ 〉. You can leave out the and 〈 /second control point/ 〉,
+which causes the first one to be used twice. So, Karl can now add the
+first half circle to the picture:
+
+#+begin_export latex
+\begin{tikzpicture}
+\draw (-1.5,0) -- (1.5,0);
+\draw (0,-1.5) -- (0,1.5);
+\draw (-1,0) .. controls (-1,0.555) and (-0.555,1) .. (0,1)
+.. controls (0.555,1) and (1,0.555) .. (1,0);
+\end{tikzpicture}
+#+end_export
+
+#+begin_example latex
+\begin{tikzpicture}
+\draw (-1.5,0) -- (1.5,0);
+\draw (0,-1.5) -- (0,1.5);
+\draw (-1,0) .. controls (-1,0.555) and (-0.555,1) .. (0,1)
+.. controls (0.555,1) and (1,0.555) .. (1,0);
+\end{tikzpicture}
+#+end_example
+
+
+Karl is happy with the result, but finds specifying circles in this way to
+be extremely awkward. Fortunately, there is a much simpler way.
+
+*** Circle Path Construction
+# - [[file:~/myDrive/org/pgfmanual.pdf::34]]
+
+
+#+begin_quote
+In order to draw a circle, the path construction operation circle can be
+used. This operation is followed by a radius in brackets as in the
+following example: (Note that the previous position is used as the
+center of the circle.)
+#+end_quote
+
+#+begin_export latex
+\tikz \draw (0,0) circle [radius=10pt];
+#+end_export
+
+#+begin_example latex
+\tikz \draw (0,0) circle [radius=10pt];
+#+end_example
+
+
+#+begin_quote
+You can also append an ellipse to the path using the ellipse operation.
+Instead of a single radius you can specify two of them:
+#+end_quote
+
+#+begin_export latex
+\tikz \draw (0,0) ellipse [x radius=20pt, y radius=10pt];
+#+end_export
+
+#+begin_example latex
+\tikz \draw (0,0) ellipse [x radius=20pt, y radius=10pt];
+#+end_example
+
+To draw a "turned ellipse" you can shift its angle like this:
+
+#+begin_export latex
+\tikz \draw[rotate=30] (0,0) ellipse [x radius=6pt, y radius=3pt];
+#+end_export
+
+#+begin_example latex
+\tikz \draw[rotate=30] (0,0) ellipse [x radius=6pt, y radius=3pt];
+#+end_example
+
+
+And finally to get you circle you can:
+
+#+begin_export latex
+\begin{tikzpicture}
+\draw (-1.5,0) -- (1.5,0);
+\draw (0,-1.5) -- (0,1.5);
+\draw (0,0) circle [radius=1cm];
+\end{tikzpicture}
+#+end_export
+
+#+begin_example latex
+\begin{tikzpicture}
+\draw (-1.5,0) -- (1.5,0);
+\draw (0,-1.5) -- (0,1.5);
+\draw (0,0) circle [radius=1cm];
+\end{tikzpicture}
+#+end_example
+
+*** Rectangle Path Construction
+# - [[file:~/myDrive/org/pgfmanual.pdf::34]]
+
+#+begin_quote
+The next things we would like to have is the grid in the background. There
+are several ways to produce it. For example, one might draw lots of
+rectangles. Since rectangles are so common, there is a special syntax for
+them: To add a rectangle to the current path, use the rectangle path
+construction operation. This operation should be followed by another
+coordinate and will append a rectangle to the path such that the previous
+coordinate and the next coordinates are corners of the rectangle. So,
+let us add two rectangles to the picture:
+#+end_quote
+
+
+#+begin_export latex
+\begin{tikzpicture}
+\draw (-1.5,0) -- (1.5,0);
+\draw (0,-1.5) -- (0,1.5);
+\draw (0,0) circle [radius=1cm];
+\draw (0,0) rectangle (0.5,0.5);
+\draw (-0.5,-0.5) rectangle (-1,-1);
+\end{tikzpicture}
+#+end_export
+
+#+begin_example latex
+\begin{tikzpicture}
+\draw (-1.5,0) -- (1.5,0);
+\draw (0,-1.5) -- (0,1.5);
+\draw (0,0) circle [radius=1cm];
+\draw (0,0) rectangle (0.5,0.5);
+\draw (-0.5,-0.5) rectangle (-1,-1);
+\end{tikzpicture}
+#+end_example
+
+#+begin_quote
+While this may be nice in other situations, this is not really leading
+anywhere with Karl’s problem: First, we would need an awful lot of these
+rectangles and then there is the border that is not “closed”. So, Karl is
+about to resort to simply drawing four vertical and four horizontal lines
+using the nice \draw command, when he learns that there is a grid
+path construction operation.
+#+end_quote
+
+*** Grid Path Construction
+# - [[file:~/myDrive/org/pgfmanual.pdf::35]]
+
+#+begin_quote
+The grid path operation adds a grid to the current path. It will add lines
+making up a grid that fills the rectangle whose one corner is the current
+point and whose other corner is the point following the grid operation [...]
+Note how the optional argument for ~\draw~ can be used to specify a grid width
+(there are also ~xstep~ and ~ystep~ to define the steppings independently).
+As Karl will learn soon, there are /lots/ of things that can be influenced
+using such options.
+
+For Karl, the following code could be used:
+#+end_quote
+
+
+#+begin_export latex
+\begin{tikzpicture}
+\draw (-1.5,0) -- (1.5,0);
+\draw (0,-1.5) -- (0,1.5);
+\draw (0,0) circle [radius=1cm];
+\draw[step=.5cm] (-1.4,-1.4) grid (1.4,1.4);
+\end{tikzpicture}
+#+end_export
+
+#+begin_example latex
+\begin{tikzpicture}
+\draw (-1.5,0) -- (1.5,0);
+\draw (0,-1.5) -- (0,1.5);
+\draw (0,0) circle [radius=1cm];
+\draw[step=.5cm] (-1.4,-1.4) grid (1.4,1.4);
+\end{tikzpicture}
+#+end_example
+
+
+#+begin_quote
+Having another look at the desired picture, Karl notices that it would be
+nice for the grid to be more subdued. (His son told him that grids tend to
+be distracting if they are not subdued.) To subdue the grid, Karl adds two
+more options to the ~\draw~ command that draws the grid. First, he uses the
+color =gray= for the grid lines. Second, he reduces the line width to
+=very thin=. Finally, he swaps the ordering of the commands so that the
+grid is drawn first and everything else on top.
+#+end_quote
+
+
+#+begin_export latex
+\begin{tikzpicture}
+\draw[step=.5cm,gray,very thin] (-1.4,-1.4) grid (1.4,1.4);
+\draw (-1.5,0) -- (1.5,0);
+\draw (0,-1.5) -- (0,1.5);
+\draw (0,0) circle [radius=1cm];
+\end{tikzpicture}
+#+end_export
+
+#+begin_example latex
+\begin{tikzpicture}
+\draw[step=.5cm,gray,very thin] (-1.4,-1.4) grid (1.4,1.4);
+\draw (-1.5,0) -- (1.5,0);
+\draw (0,-1.5) -- (0,1.5);
+\draw (0,0) circle [radius=1cm];
+\end{tikzpicture}
+#+end_example
