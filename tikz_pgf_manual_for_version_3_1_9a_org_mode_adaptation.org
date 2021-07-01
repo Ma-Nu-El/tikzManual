@@ -1,9 +1,12 @@
 :PROPERTIES:
 :ID:       c79262dd-dc13-4daf-8c53-9ce575d6fe38
 :END:
-#+title: Tikz & pgf Manual - for version 3.1.9a (Org-mode adaptation)
+#+title: Tikz & pgf Manual - for version 3.1.9a
+#+subtitle: Org-mode adaptation
+#+author: Manuel Fuica Morales - _[[mailto:manuel.fuica.morales@gmail.com][manuel.fuica.morales@gmail.com]]_
+#+language: en
 #+LATEX_HEADER: \usepackage{tikz}
-# need that if you want drawings with TikZ.
+# Need that if you want drawings with TikZ [above].
 #+OPTIONS: toc:4
 
 # The file:
@@ -41,6 +44,9 @@
 - Also, I'm reading the =.pdf= where as having the =org= source code for
   it might be handy for the future me.
 
+
+- I haven't been able to generate the TikZ images for =.html= output of this
+  =.org= file; just the =.pdf= output for the moment.
 * Intro
 # - [[file:~/myDrive/org/pgfmanual.pdf::27]]
 
