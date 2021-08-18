@@ -1,0 +1,200 @@
+#+INCLUDE: "config.org"
+#+subtitle: Introduction
+
+# The file:
+# - [[file:~/myDrive/org/pgfmanual.pdf]]
+# - [[file:~/myDrive/org/pgfmanual.pdf::30]]
+
+* Intro
+# - [[file:~/myDrive/org/pgfmanual.pdf::27]]
+
+TikZ is a front-end for the pgf system.
+
+#+begin_quote
+What began as a small LaTeX style for creating the graphics in my
+(Till Tantau’s) PhD thesis directly with pdfLaTeX has now grown to become a
+full-blown graphics language with a manual of over a thousand pages.
+#+end_quote
+
+#+begin_quote
+“What is TikZ?” Basically, it just defines a number of TEX commands
+that draw graphics.
+#+end_quote
+
+#+begin_quote
+In a sense, when you use TikZ you “program” your graphics, just as you
+“program” your document when you use TEX.
+#+end_quote
+
+#+begin_quote
+With TikZ you get all the advantages of the “TEX-approach to typesetting” for
+your graphics: quick creation of simple graphics, precise positioning, the use
+of macros, often superior typography. You also inherit all the disadvantages:
+steep learning curve, no wysiwyg, small changes require a long recompilation
+time, and the code does not really “show” how things will look like.
+#+end_quote
+
+And pgf?
+
+#+begin_quote
+TikZ started out as a project to implement TEX graphics macros that can be used
+both with pdfLaTeX and also with the classical (PostScript-based) LaTeX.
+In other words, I wanted to implement a “portable graphics format” for TEX –
+hence the name pgf. These early macros are still around and they form the
+“basic layer” of the system described in this manual, but most of the
+interaction an author has these days is with TikZ – which has become a whole
+language of its own.
+#+end_quote
+
+* The Layers Below TikZ
+# - [[file:~/myDrive/org/pgfmanual.pdf::27]]
+
+- System Layer:
+  This layer provides a complete abstraction of what is going on
+  “in the driver”. The driver is a program like dvips or dvipdfm that takes a
+  .dvi file as input and generates a .ps or a .pdf file. (The pdftex program
+  also counts as a driver, even though it does not take a .dvi file as input.
+  Never mind.) Each driver has its own syntax for the generation of graphics,
+  causing headaches to everyone who wants to create graphics in a portable way.
+  pgf’s system layer “abstracts away” these differences. The system layer is as
+  “minimalistic” as possible since each additional command makes it more work
+  to port pgf to a new driver.
+
+  As a user, you will not use the system layer directly.
+
+- Basic Layer:
+  The basic layer provides a set of basic commands that allow you to produce
+  complex graphics in a much easier manner than by using the system layer
+  directly. For example, the system layer provides no commands for creating
+  circles since circles can be composed from the more basic Bézier curves
+  (well, almost). However, as a user you will want to have a simple command to
+  create circles (at least I do) instead of having to write down half a page of
+  Bézier curve support coordinates. Thus, the basic layer provides a command
+  ~\pgfpathcircle~ that generates the necessary curve coordinates for you.
+
+  The basic layer consists of a /core/, which consists of several interdependent
+  packages that can only be loaded /en bloc/, and additional modules that
+  extend the core by more special-purpose commands like node management or a
+  plotting interface. For instance, the =beamer= package uses only the core and
+  not, say, the shapes modules.
+
+
+As the /basic/ layer is a front-end for the /system/ layer, =TikZ= is a
+front-end to the /basic/ layer.
+
+#+begin_center
+System <- Basic <- TikZ
+#+end_center
+
+
+#+begin_quote
+The syntax [of TikZ] is a mixture of =metafont= and =pstricks= and some
+ideas of myself.
+#+end_quote
+
+
+#+begin_quote
+Since most users will only use TikZ and almost no one will use the /system/
+layer directly, this manual is mainly about TikZ in the first parts; the
+/basic/ layer and the /system/ layer are explained at the end.
+#+end_quote
+
+* Comparison with Other Graphics Packages
+# - [[file:~/myDrive/org/pgfmanual.pdf::28]]
+
+
+1. The standard LaTeX {picture} environment allows you to create simple
+   graphics, but little more. This is certainly not due to a lack of knowledge
+   or imagination on the part of LaTeX’s designer(s). Rather, this is the
+   price paid for the {picture} environment’s portability: It works together
+   with all backend drivers.
+
+2. The pstricks package is certainly powerful enough to create any conceivable
+   kind of graphic, but it is not really portable. Most importantly, it does
+   not work with pdftex nor with any other driver that produces anything but
+   PostScript code.
+
+   Compared to TikZ, pstricks has a similar support base. There are many nice
+   extra packages for special purpose situations that have been contributed by
+   users over the last decade. The TikZ syntax is more consistent than the
+   pstricks syntax as TikZ was developed “in a more centralized manner” and
+   also “with the shortcomings on pstricks in mind”.
+
+3. The xypic package is an older package for creating graphics. However, it is
+   more difficult to use and to learn because the syntax and the documentation
+   are a bit cryptic.
+4. The dratex package is a small graphic package for creating a graphics.
+   Compared to the other package, including TikZ, it is very small, which may
+   or may not be an advantage.
+5. The metapost program is a powerful alternative to TikZ. It used to be an
+   external program, which entailed a bunch of problems, but in LuaTEX it is
+   now built in. An obstacle with metapost is the inclusion of labels. This
+   is much easier to achieve using pgf.
+6. The xfig program is an important alternative to TikZ for users who do not
+   wish to “program” their graphics as is necessary with TikZ and the other
+   packages above. There is a conversion program that will convert xfig
+   graphics to TikZ.
+
+* Utility Packages
+# - [[file:~/myDrive/org/pgfmanual.pdf::28]]
+
+
+#+begin_quote
+The pgf package comes along with a number of utility package that are not
+really about creating graphics and which can be used independently of pgf.
+However, they are bundled with pgf, partly out of convenience, partly because
+their functionality is closely intertwined with pgf. These utility packages are:
+#+end_quote
+
+1. The pgfkeys package defines a powerful key management facility. It can be
+   used completely independently of pgf.
+2. The pgffor package defines a useful \foreach statement.
+3. The pgfcalendar package defines macros for creating calendars. Typically,
+   these calendars will be rendered using pgf’s graphic engine, but you can use
+   pgfcalendar also typeset calendars using normal text. The package also
+   defines commands for “working” with dates.
+4. The pgfpages package is used to assemble several pages into a single page.
+   It provides commands for assembling several “virtual pages” into a single
+   “physical page”. The idea is that whenever TEX has a page ready for
+   “shipout”, pgfpages interrupts this shipout and instead stores the page to
+   be shipped out in a special box. When enough “virtual pages” have been
+   accumulated in this way, they are scaled down and arranged on a
+   “physical page”, which then really shipped out. This mechanism allows you
+   to create “two page on one page” versions of a document directly inside
+   LaTeX without the use of any external programs. However, pgfpages can do
+   quite a lot more than that. You can use it to put logos and watermark on
+   pages, print up to 16 pages on one page, add borders to pages, and more.
+
+* How to Read This Manual
+# - [[file:~/myDrive/org/pgfmanual.pdf::29]]
+
+
+#+begin_quote
+This manual describes both the design of TikZ and its usage. [...] The commands
+and subpackages that are easiest and most frequently used are described first,
+more low-level and esoteric features are discussed later. [...] you might wish
+to skim through the description of TikZ. Typically, you will not need to read
+the sections on the /basic/ layer. You will only need to read the part on the
+/system/ layer if you intend to write your own frontend or if you wish to port
+pgf to a new driver.
+#+end_quote
+
+* Authors and Acknowledgements
+# - [[file:~/myDrive/org/pgfmanual.pdf::29]]
+
+
+#+begin_quote
+The bulk of the pgf system and its documentation was written by Till Tantau. A
+further member of the main team is Mark Wibrow, who is responsible, for example,
+for the pgf mathematical engine, many shapes, the decoration engine, and
+matrices. The third member is Christian Feuersänger who contributed the
+floating point library, image externalization, extended key processing, and
+automatic hyperlinks in the manual. Furthermore, occasional contributions have
+been made by Christophe Jorssen, Jin-Hwan Cho, Olivier Binda, Matthias Schulz,
+Renée Ahrens, Stephan Schuster, and Thomas Neumann. Additionally, numerous
+people have contributed to the pgf system by writing emails, spotting bugs, or
+sending libraries and patches. Many thanks to all these people, who are too
+numerous to name them all!
+#+end_quote
+
+

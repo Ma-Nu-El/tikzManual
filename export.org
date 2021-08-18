@@ -1,0 +1,18 @@
+:ORG_MODE_SETUP:
+#+title:
+#+subtitle:
+#+author:
+#+language: en
+#+OPTIONS: toc:4
+:END:
+:LATEX_HEADERS:
+#+LATEX_HEADER: \usepackage{tikz}
+# You need that if you want drawings with TikZ [above].
+:END:
+
+* TOC :TOC_2:noexport:
+- [[#include][Include]]
+
+* About :noexport:
+Export this =.org= file
+* Include

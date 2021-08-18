@@ -1,0 +1,1670 @@
+#+INCLUDE: "config.org"
+#+subtitle: Tutorial: A Picture for Karl’s Students
+
+# The file:
+# - [[file:~/myDrive/org/pgfmanual.pdf]]
+# - [[file:~/myDrive/org/pgfmanual.pdf::30]]
+
+
+* Example: a house draw with just one line.
+:PROPERTIES:
+:ID:       13c9052d-c206-4332-ba3c-19e384251ced
+:END:
+
+#+NAME: [[id:13c9052d-c206-4332-ba3c-19e384251ced][example: a house draw with just one line.]]
+#+CAPTION: House with one line.
+#+begin_latex
+\begin{tikzpicture}
+\tikz \draw[thick,rounded corners=8pt]
+(0,0) -- (0,2) -- (1,3.25) -- (2,2) -- (2,0) -- (0,2) --
+(2,2) -- (0,0) -- (2,0);
+\end{tikzpicture}
+#+end_latex
+
+#+begin_example latex
+\begin{tikzpicture}
+\tikz \draw[thick,rounded corners=8pt]
+(0,0) -- (0,2) -- (1,3.25) -- (2,2) -- (2,0) -- (0,2) --
+(2,2) -- (0,0) -- (2,0);
+\end{tikzpicture}
+#+end_example
+
+* Tutorial: A Picture for Karl’s Students
+# - [[file:~/myDrive/org/pgfmanual.pdf::31]]
+
+** Intro
+#+begin_quote
+This tutorial is intended for new users of TikZ. It does not give an
+exhaustive account of all the features of TikZ, just of those that you are
+likely to use right away.
+
+Karl is a math and chemistry high-school teacher. He used to create the
+graphics in his worksheets and exams using L A TEX’s {picture} environment.
+While the results were acceptable, creating the graphics often turned out to
+be a lengthy process. Also, there tended to be problems with lines having
+slightly wrong angles and circles also seemed to be hard to get right.
+Naturally, his students could not care less whether the lines had the exact
+right angles and they find Karl’s exams too difficult no matter how nicely
+they were drawn. But Karl was never entirely satisfied with the result.
+
+Karl’s son, who was even less satisfied with the results (he did not have to
+take the exams, after all), told Karl that he might wish to try out a new
+package for creating graphics. A bit confusingly, this package seems to have
+two names: First, Karl had to download and install a package called pgf. Then
+it turns out that inside this package there is another package called TikZ,
+which is supposed to stand for “TikZ ist kein Zeichenprogramm”. Karl finds
+this all a bit strange and TikZ seems to indicate that the package does not
+do what he needs. However, having used gnu software for quite some time and
+“gnu not being Unix”, there seems to be hope yet. His son assures him that
+TikZ’s name is intended to warn people that TikZ is not a program that you can
+use to draw graphics with your mouse or tablet. Rather, it is more like a
+“graphics language”.
+#+end_quote
+
+** Problem Statement
+# - [[file:~/myDrive/org/pgfmanual.pdf::31]]
+[The teacher wants to teach his students about sine and cosine.]
+
+** Setting up the Environment
+# - [[file:~/myDrive/org/pgfmanual.pdf::31]]
+
+#+begin_export latex
+We are working on
+\begin{tikzpicture}
+\draw (-1.5,0) -- (1.5,0);
+\draw (0,-1.5) -- (0,1.5);
+\end{tikzpicture}
+#+end_export
+
+#+begin_example
+(1) \begin{tikzpicture}
+(2) \draw (-1.5,0) -- (1.5,0);
+(3) \draw (0,-1.5) -- (0,1.5);
+(4) \end{tikzpicture}
+#+end_example
+
+- Second line: "a straight line from the point at position (−1.5, 0) to
+  the point at position (0, 1.5)"
+
+
+Or in the old fashion way (=TeX=):
+
+#+begin_example
+\input tikz.tex
+\baselineskip=12pt
+\hsize=6.3truein
+\vsize=8.7truein
+We are working on
+\tikzpicture
+\draw (-1.5,0) -- (1.5,0);
+\draw (0,-1.5) -- (0,1.5);
+\endtikzpicture.
+\bye
+#+end_example
+
+** Straight Path Construction
+# - [[file:~/myDrive/org/pgfmanual.pdf::31]]
+
+
+#+begin_quote
+The basic building block of all pictures in TikZ is the /path/. A /path/ is a
+series of straight lines and curves that are connected (that is not the whole
+picture, but let us ignore the complications for the moment). You start a /path/
+by specifying the coordinates of the start position as a point in round
+brackets, as in (0,0). This is followed by a series of “path extension
+operations”. The simplest is --, which we used already. It must be followed
+by another coordinate and it extends the /path/ in a straight line to this new
+position. For example, if we were to turn the two paths of the axes into one
+/path/, the following would result:
+#+end_quote
+
+#+begin_export latex
+\tikz \draw (-1.5,0) -- (1.5,0) -- (0,-1.5) -- (0,1.5);
+#+end_export
+
+#+begin_example
+\tikz \draw (-1.5,0) -- (1.5,0) -- (0,-1.5) -- (0,1.5);
+#+end_example
+
+
+#+begin_quote
+Karl is a bit confused by the fact that there is no ~{tikzpicture}~ environment,
+here. Instead, the little command ~\tikz~ is used. This command either takes one
+argument (starting with an opening brace as in ~\tikz{\draw (0,0) -- (1.5,0)}~,
+which yields /[horizontal line]/) or collects everything up to the next
+semicolon and puts it inside a ~{tikzpicture}~ environment. As a rule of thumb,
+all TikZ graphic drawing commands must occur as an argument of ~\tikz~ or inside
+a ~{tikzpicture}~ environment. Fortunately, the command ~\draw~ will only be
+defined inside this environment, so there is little chance that you will
+accidentally do something wrong here.
+#+end_quote
+
+** Curved Path Construction
+# - [[file:~/myDrive/org/pgfmanual.pdf::33]]
+
+The next thing Karl wants to do is to draw the circle. For this, straight
+lines obviously will not do. Instead, we need some way to draw curves. For
+this, TikZ provides a special syntax. One or two “control points” are needed.
+The math behind them is not quite trivial, but here is the basic idea: Suppose
+you are at point \(x\) and the first control point is \(y\). Then the curve
+will start “going in the direction of \(y\) at \(x\)”, that is, the tangent of
+the curve at \(x\) will point toward \(y\). Next, suppose the curve should end
+at \(z\) and the second support point is \(w\). Then the curve will, indeed,
+end at \(z\) and the tangent of the curve at point \(z\) will go through \(w\).
+
+Here is an example (the control points have been added for clarity):
+
+#+begin_export latex
+\begin{tikzpicture}
+\filldraw [gray]
+(0,0) circle [radius=2pt]
+(1,1) circle [radius=2pt]
+(2,1) circle [radius=2pt]
+(2,0) circle [radius=2pt];
+\draw (0,0) .. controls (1,1) and (2,1) .. (2,0);
+\end{tikzpicture}
+#+end_export
+
+#+begin_example latex
+\begin{tikzpicture}
+\filldraw [gray]
+(0,0) circle [radius=2pt]
+(1,1) circle [radius=2pt]
+(2,1) circle [radius=2pt]
+(2,0) circle [radius=2pt];
+\draw (0,0) .. controls (1,1) and (2,1) .. (2,0);
+\end{tikzpicture}
+#+end_example
+
+The general syntax for extending a path in a “curved” way is .. controls
+\(\langle\) /first control point/ \(\rangle\) and
+\(\langle\) /second control point/ \(\rangle\) ..
+\(\langle\) /end point/ \(\rangle\). You can leave out the and
+\(\langle\) /second control point/ \(\rangle\),
+which causes the first one to be used twice. So, Karl can now add the
+first half circle to the picture:
+
+#+begin_export latex
+\begin{tikzpicture}
+\draw (-1.5,0) -- (1.5,0);
+\draw (0,-1.5) -- (0,1.5);
+\draw (-1,0) .. controls (-1,0.555) and (-0.555,1) .. (0,1)
+.. controls (0.555,1) and (1,0.555) .. (1,0);
+\end{tikzpicture}
+#+end_export
+
+#+begin_example latex
+\begin{tikzpicture}
+\draw (-1.5,0) -- (1.5,0);
+\draw (0,-1.5) -- (0,1.5);
+\draw (-1,0) .. controls (-1,0.555) and (-0.555,1) .. (0,1)
+.. controls (0.555,1) and (1,0.555) .. (1,0);
+\end{tikzpicture}
+#+end_example
+
+
+Karl is happy with the result, but finds specifying circles in this way to
+be extremely awkward. Fortunately, there is a much simpler way.
+
+** Circle Path Construction
+# - [[file:~/myDrive/org/pgfmanual.pdf::34]]
+
+
+#+begin_quote
+In order to draw a circle, the path construction operation circle can be
+used. This operation is followed by a radius in brackets as in the
+following example: (Note that the previous position is used as the
+center of the circle.)
+#+end_quote
+
+#+begin_export latex
+\tikz \draw (0,0) circle [radius=10pt];
+#+end_export
+
+#+begin_example latex
+\tikz \draw (0,0) circle [radius=10pt];
+#+end_example
+
+
+#+begin_quote
+You can also append an ellipse to the path using the ellipse operation.
+Instead of a single radius you can specify two of them:
+#+end_quote
+
+#+begin_export latex
+\tikz \draw (0,0) ellipse [x radius=20pt, y radius=10pt];
+#+end_export
+
+#+begin_example latex
+\tikz \draw (0,0) ellipse [x radius=20pt, y radius=10pt];
+#+end_example
+
+To draw a "turned ellipse" you can shift its angle like this:
+
+#+begin_export latex
+\tikz \draw[rotate=30] (0,0) ellipse [x radius=6pt, y radius=3pt];
+#+end_export
+
+#+begin_example latex
+\tikz \draw[rotate=30] (0,0) ellipse [x radius=6pt, y radius=3pt];
+#+end_example
+
+
+And finally to get you circle you can:
+
+#+begin_export latex
+\begin{tikzpicture}
+\draw (-1.5,0) -- (1.5,0);
+\draw (0,-1.5) -- (0,1.5);
+\draw (0,0) circle [radius=1cm];
+\end{tikzpicture}
+#+end_export
+
+#+begin_example latex
+\begin{tikzpicture}
+\draw (-1.5,0) -- (1.5,0);
+\draw (0,-1.5) -- (0,1.5);
+\draw (0,0) circle [radius=1cm];
+\end{tikzpicture}
+#+end_example
+
+** Rectangle Path Construction
+# - [[file:~/myDrive/org/pgfmanual.pdf::34]]
+
+#+begin_quote
+The next things we would like to have is the grid in the background. There
+are several ways to produce it. For example, one might draw lots of
+rectangles. Since rectangles are so common, there is a special syntax for
+them: To add a rectangle to the current path, use the rectangle path
+construction operation. This operation should be followed by another
+coordinate and will append a rectangle to the path such that the previous
+coordinate and the next coordinates are corners of the rectangle. So,
+let us add two rectangles to the picture:
+#+end_quote
+
+
+#+begin_export latex
+\begin{tikzpicture}
+\draw (-1.5,0) -- (1.5,0);
+\draw (0,-1.5) -- (0,1.5);
+\draw (0,0) circle [radius=1cm];
+\draw (0,0) rectangle (0.5,0.5);
+\draw (-0.5,-0.5) rectangle (-1,-1);
+\end{tikzpicture}
+#+end_export
+
+#+begin_example latex
+\begin{tikzpicture}
+\draw (-1.5,0) -- (1.5,0);
+\draw (0,-1.5) -- (0,1.5);
+\draw (0,0) circle [radius=1cm];
+\draw (0,0) rectangle (0.5,0.5);
+\draw (-0.5,-0.5) rectangle (-1,-1);
+\end{tikzpicture}
+#+end_example
+
+#+begin_quote
+While this may be nice in other situations, this is not really leading
+anywhere with Karl’s problem: First, we would need an awful lot of these
+rectangles and then there is the border that is not “closed”. So, Karl is
+about to resort to simply drawing four vertical and four horizontal lines
+using the nice \draw command, when he learns that there is a grid
+path construction operation.
+#+end_quote
+
+** Grid Path Construction
+# - [[file:~/myDrive/org/pgfmanual.pdf::35]]
+
+#+begin_quote
+The grid path operation adds a grid to the current path. It will add lines
+making up a grid that fills the rectangle whose one corner is the current
+point and whose other corner is the point following the grid operation [...]
+Note how the optional argument for ~\draw~ can be used to specify a grid width
+(there are also ~xstep~ and ~ystep~ to define the steppings independently).
+As Karl will learn soon, there are /lots/ of things that can be influenced
+using such options.
+
+For Karl, the following code could be used:
+#+end_quote
+
+#+begin_export latex
+\begin{tikzpicture}
+\draw (-1.5,0) -- (1.5,0);
+\draw (0,-1.5) -- (0,1.5);
+\draw (0,0) circle [radius=1cm];
+\draw[step=.5cm] (-1.4,-1.4) grid (1.4,1.4);
+\end{tikzpicture}
+#+end_export
+
+#+begin_example latex
+\begin{tikzpicture}
+\draw (-1.5,0) -- (1.5,0);
+\draw (0,-1.5) -- (0,1.5);
+\draw (0,0) circle [radius=1cm];
+\draw[step=.5cm] (-1.4,-1.4) grid (1.4,1.4);
+\end{tikzpicture}
+#+end_example
+
+#+begin_quote
+Having another look at the desired picture, Karl notices that it would be
+nice for the grid to be more subdued. (His son told him that grids tend to
+be distracting if they are not subdued.) To subdue the grid, Karl adds two
+more options to the ~\draw~ command that draws the grid. First, he uses the
+color =gray= for the grid lines. Second, he reduces the line width to
+=very thin=. Finally, he swaps the ordering of the commands so that the
+grid is drawn first and everything else on top.
+#+end_quote
+
+#+begin_export latex
+\begin{tikzpicture}
+\draw[step=.5cm,gray,very thin] (-1.4,-1.4) grid (1.4,1.4);
+\draw (-1.5,0) -- (1.5,0);
+\draw (0,-1.5) -- (0,1.5);
+\draw (0,0) circle [radius=1cm];
+\end{tikzpicture}
+#+end_export
+
+#+begin_example latex
+\begin{tikzpicture}
+\draw[step=.5cm,gray,very thin] (-1.4,-1.4) grid (1.4,1.4);
+\draw (-1.5,0) -- (1.5,0);
+\draw (0,-1.5) -- (0,1.5);
+\draw (0,0) circle [radius=1cm];
+\end{tikzpicture}
+#+end_example
+
+** Adding a Touch of Style
+:PROPERTIES:
+:ID:       553b85d9-48d0-47bd-b876-989bd5b56a2a
+:END:
+# - [[file:~/myDrive/org/pgfmanual.pdf::35]]
+Setting colors globally.
+** Drawing Options
+# - [[file:~/myDrive/org/pgfmanual.pdf::36]]
+About dashed patterns and line thickness.
+** Arc Path Construction
+# - [[file:~/myDrive/org/pgfmanual.pdf::36]]
+
+About drawing arcs
+
+#+begin_export latex
+\begin{tikzpicture}
+\draw[step=.5cm,gray,very thin] (-1.4,-1.4) grid (1.4,1.4);
+\draw (-1.5,0) -- (1.5,0);
+\draw (0,-1.5) -- (0,1.5);
+\draw (0,0) circle [radius=1cm];
+\draw (3mm,0mm) arc [start angle=0, end angle=30, radius=3mm];
+\end{tikzpicture}
+#+end_export
+
+#+begin_example latex
+\begin{tikzpicture}
+\draw[step=.5cm,gray,very thin] (-1.4,-1.4) grid (1.4,1.4);
+\draw (-1.5,0) -- (1.5,0);
+\draw (0,-1.5) -- (0,1.5);
+\draw (0,0) circle [radius=1cm];
+\draw (3mm,0mm) arc [start angle=0, end angle=30, radius=3mm];
+\end{tikzpicture}
+#+end_example
+
+But this last draw seems too small to notice the arc. Scale it up with
+the =scale=3= option at the beginning of the snippet. You could also instead
+add the option to each =\draw= command, but that would be too inefficient.
+
+#+begin_export latex
+\begin{tikzpicture}[scale=3]
+\draw[step=.5cm,gray,very thin] (-1.4,-1.4) grid (1.4,1.4);
+\draw (-1.5,0) -- (1.5,0);
+\draw (0,-1.5) -- (0,1.5);
+\draw (0,0) circle [radius=1cm];
+\draw (3mm,0mm) arc [start angle=0, end angle=30, radius=3mm];
+\end{tikzpicture}
+#+end_export
+
+#+begin_example latex
+\begin{tikzpicture}[scale=3]
+\draw[step=.5cm,gray,very thin] (-1.4,-1.4) grid (1.4,1.4);
+\draw (-1.5,0) -- (1.5,0);
+\draw (0,-1.5) -- (0,1.5);
+\draw (0,0) circle [radius=1cm];
+\draw (3mm,0mm) arc [start angle=0, end angle=30, radius=3mm];
+\end{tikzpicture}
+#+end_example
+
+And if you want an ellipsis, you just set 2 radii.
+
+#+begin_export latex
+\tikz \draw (0,0)
+arc [start angle=0, end angle=315,
+x radius=1.75cm, y radius=1cm];
+#+end_export
+
+#+begin_example latex
+\tikz \draw (0,0)
+arc [start angle=0, end angle=315,
+x radius=1.75cm, y radius=1cm];
+#+end_example
+
+** Digression
+*** Clipping a Path
+:PROPERTIES:
+:ID:       0e6461e4-6009-494a-af25-1d3062d78a41
+:END:
+# - [[file:~/myDrive/org/pgfmanual.pdf::37]]
+
+
+Zoom on the interesting part of a picture.
+
+#+begin_export latex
+\begin{tikzpicture}[scale=3]
+\clip (-0.1,-0.2) rectangle (1.1,0.75);
+\draw[step=.5cm,gray,very thin] (-1.4,-1.4) grid (1.4,1.4);
+\draw (-1.5,0) -- (1.5,0);
+\draw (0,-1.5) -- (0,1.5);
+\draw (0,0) circle [radius=1cm];
+\draw (3mm,0mm) arc [start angle=0, end angle=30, radius=3mm];
+\end{tikzpicture}
+#+end_export
+
+#+begin_example latex
+\begin{tikzpicture}[scale=3]
+\clip (-0.1,-0.2) rectangle (1.1,0.75);
+\draw[step=.5cm,gray,very thin] (-1.4,-1.4) grid (1.4,1.4);
+\draw (-1.5,0) -- (1.5,0);
+\draw (0,-1.5) -- (0,1.5);
+\draw (0,0) circle [radius=1cm];
+\draw (3mm,0mm) arc [start angle=0, end angle=30, radius=3mm];
+\end{tikzpicture}
+#+end_example
+
+You can also draw the border of the zoom. That is accomplished by adding
+the =[draw]= option to the =\clip= command.
+
+#+begin_export latex
+\begin{tikzpicture}[scale=3]
+\clip[draw] (-0.1,-0.2) rectangle (1.1,0.75);
+\draw[step=.5cm,gray,very thin] (-1.4,-1.4) grid (1.4,1.4);
+\draw (-1.5,0) -- (1.5,0);
+\draw (0,-1.5) -- (0,1.5);
+\draw (0,0) circle [radius=1cm];
+\draw (3mm,0mm) arc [start angle=0, end angle=30, radius=3mm];
+\end{tikzpicture}
+#+end_export
+
+#+begin_example latex
+\begin{tikzpicture}[scale=3]
+\clip[draw] (-0.1,-0.2) rectangle (1.1,0.75);
+\draw[step=.5cm,gray,very thin] (-1.4,-1.4) grid (1.4,1.4);
+\draw (-1.5,0) -- (1.5,0);
+\draw (0,-1.5) -- (0,1.5);
+\draw (0,0) circle [radius=1cm];
+\draw (3mm,0mm) arc [start angle=0, end angle=30, radius=3mm];
+\end{tikzpicture}
+#+end_example
+
+And also change the shape of the zoom area. Here is a circle.
+
+#+begin_export latex
+\begin{tikzpicture}[scale=3]
+\clip[draw] (0.5,0.5) circle (.6cm);
+\draw[step=.5cm,gray,very thin] (-1.4,-1.4) grid (1.4,1.4);
+\draw (-1.5,0) -- (1.5,0);
+\draw (0,-1.5) -- (0,1.5);
+\draw (0,0) circle [radius=1cm];
+\draw (3mm,0mm) arc [start angle=0, end angle=30, radius=3mm];
+\end{tikzpicture}
+#+end_export
+
+#+begin_example latex
+\begin{tikzpicture}[scale=3]
+\clip[draw] (0.5,0.5) circle (.6cm);
+\draw[step=.5cm,gray,very thin] (-1.4,-1.4) grid (1.4,1.4);
+\draw (-1.5,0) -- (1.5,0);
+\draw (0,-1.5) -- (0,1.5);
+\draw (0,0) circle [radius=1cm];
+\draw (3mm,0mm) arc [start angle=0, end angle=30, radius=3mm];
+\end{tikzpicture}
+#+end_example
+
+*** Parabola and Sine Path Construction
+# - [[file:~/myDrive/org/pgfmanual.pdf::38]]
+
+
+About drawing /parabola/ and /sin/ and /cos/.
+
+#+begin_export latex
+\tikz \draw (0,0) rectangle (1,1) (0,0) parabola (1,1);
+#+end_export
+
+#+begin_example latex
+\tikz \draw (0,0) rectangle (1,1) (0,0) parabola (1,1);
+#+end_example
+
+#+begin_export latex
+\tikz \draw[x=1pt,y=1pt] (0,0) parabola bend (4,16) (6,12);
+#+end_export
+
+#+begin_example latex
+\tikz \draw[x=1pt,y=1pt] (0,0) parabola bend (4,16) (6,12);
+#+end_example
+
+#+begin_export latex
+A sine \tikz \draw[x=1ex,y=1ex] (0,0) sin (1.57,1); curve.
+#+end_export
+
+#+begin_example latex
+A sine \tikz \draw[x=1ex,y=1ex] (0,0) sin (1.57,1); curve.
+#+end_example
+
+#+begin_export latex
+\tikz \draw[x=1.57ex,y=1ex] (0,0) sin (1,1) cos (2,0) sin (3,-1) cos (4,0)
+(0,1) cos (1,0) sin (2,-1) cos (3,0) sin (4,1);
+#+end_export
+
+#+begin_example latex
+\tikz \draw[x=1.57ex,y=1ex] (0,0) sin (1,1) cos (2,0) sin (3,-1) cos (4,0)
+(0,1) cos (1,0) sin (2,-1) cos (3,0) sin (4,1);
+#+end_example
+
+** Filling and Drawing
+# - [[file:~/myDrive/org/pgfmanual.pdf::38]]
+
+#+begin_export latex
+\begin{tikzpicture}[scale=3]
+\clip (-0.1,-0.2) rectangle (1.1,0.75);
+\draw[step=.5cm,gray,very thin] (-1.4,-1.4) grid (1.4,1.4);
+\draw (-1.5,0) -- (1.5,0);
+\draw (0,-1.5) -- (0,1.5);
+\draw (0,0) circle [radius=1cm];
+\fill[green!80!white] (0,0) -- (3mm,0mm)
+arc [start angle=0, end angle=30, radius=3mm] -- (0,0);
+\end{tikzpicture}
+#+end_export
+
+#+begin_example latex
+\begin{tikzpicture}[scale=3]
+\clip (-0.1,-0.2) rectangle (1.1,0.75);
+\draw[step=.5cm,gray,very thin] (-1.4,-1.4) grid (1.4,1.4);
+\draw (-1.5,0) -- (1.5,0);
+\draw (0,-1.5) -- (0,1.5);
+\draw (0,0) circle [radius=1cm];
+\fill[green!80!white] (0,0) -- (3mm,0mm)
+arc [start angle=0, end angle=30, radius=3mm] -- (0,0);
+\end{tikzpicture}
+#+end_example
+
+The color =green!20!white= means /20% green and 80% white mixed together/. Such
+color expression are possible since TikZ uses Uwe Kern’s =xcolor= package,
+see the documentation of that package for details on color expressions.
+
+Closed vs unclosed fill:
+
+#+begin_export latex
+\begin{tikzpicture}[line width=5pt]
+\draw (0,0) -- (1,0) -- (1,1) -- (0,0);
+\draw (2,0) -- (3,0) -- (3,1) -- cycle;
+\useasboundingbox (0,1.5); % make bounding box higher
+\end{tikzpicture}
+#+end_export
+
+#+begin_example latex
+\begin{tikzpicture}[line width=5pt]
+\draw (0,0) -- (1,0) -- (1,1) -- (0,0);
+\draw (2,0) -- (3,0) -- (3,1) -- cycle;
+\useasboundingbox (0,1.5); % make bounding box higher
+\end{tikzpicture}
+#+end_example
+
+As with [[id:0e6461e4-6009-494a-af25-1d3062d78a41][clipping]], you can fill and also draw the shape of the fill.
+
+#+begin_export latex
+\begin{tikzpicture}[scale=3]
+\clip (-0.1,-0.2) rectangle (1.1,0.75);
+\draw[step=.5cm,gray,very thin] (-1.4,-1.4) grid (1.4,1.4);
+\draw (-1.5,0) -- (1.5,0);
+\draw (0,-1.5) -- (0,1.5);
+\draw (0,0) circle [radius=1cm];
+\filldraw[fill=green!80!white, draw=green!50!black] (0,0) -- (3mm,0mm)
+arc [start angle=0, end angle=30, radius=3mm] -- cycle;
+\end{tikzpicture}
+#+end_export
+
+#+begin_example latex
+\begin{tikzpicture}[scale=3]
+\clip (-0.1,-0.2) rectangle (1.1,0.75);
+\draw[step=.5cm,gray,very thin] (-1.4,-1.4) grid (1.4,1.4);
+\draw (-1.5,0) -- (1.5,0);
+\draw (0,-1.5) -- (0,1.5);
+\draw (0,0) circle [radius=1cm];
+\filldraw[fill=green!80!white, draw=green!50!black] (0,0) -- (3mm,0mm)
+arc [start angle=0, end angle=30, radius=3mm] -- cycle;
+\end{tikzpicture}
+#+end_example
+
+** Shading
+# - [[file:~/myDrive/org/pgfmanual.pdf::39]]
+
+#+begin_export latex
+\tikz \shade (0,0) rectangle (2,1) (3,0.5) circle (.5cm);
+#+end_export
+
+#+begin_example latex
+\tikz \shade (0,0) rectangle (2,1) (3,0.5) circle (.5cm);
+#+end_example
+
+#+begin_export latex
+\begin{tikzpicture}[rounded corners,ultra thick]
+\shade[top color=yellow,bottom color=black] (0,0) rectangle +(2,1);
+\shade[left color=yellow,right color=black] (3,0) rectangle +(2,1);
+\shadedraw[inner color=yellow,outer color=black,draw=yellow] (6,0) rectangle +(2,1);
+\shade[ball color=green] (9,.5) circle (.5cm);
+\end{tikzpicture}
+#+end_export
+
+#+begin_example latex
+\begin{tikzpicture}[rounded corners,ultra thick]
+\shade[top color=yellow,bottom color=black] (0,0) rectangle +(2,1);
+\shade[left color=yellow,right color=black] (3,0) rectangle +(2,1);
+\shadedraw[inner color=yellow,outer color=black,draw=yellow]
+(6,0) rectangle +(2,1);
+\shade[ball color=green] (9,.5) circle (.5cm);
+\end{tikzpicture}
+#+end_example
+
+#+begin_export latex
+\begin{tikzpicture}[scale=3]
+\clip (-0.1,-0.2) rectangle (1.1,0.75);
+\draw[step=.5cm,gray,very thin] (-1.4,-1.4) grid (1.4,1.4);
+\draw (-1.5,0) -- (1.5,0);
+\draw (0,-1.5) -- (0,1.5);
+\draw (0,0) circle [radius=1cm];
+\shadedraw[left color=gray,right color=green, draw=green!50!black]
+(0,0) -- (3mm,0mm)
+arc [start angle=0, end angle=30, radius=3mm] -- cycle;
+\end{tikzpicture}
+#+end_export
+
+#+begin_example latex
+\begin{tikzpicture}[scale=3]
+\clip (-0.1,-0.2) rectangle (1.1,0.75);
+\draw[step=.5cm,gray,very thin] (-1.4,-1.4) grid (1.4,1.4);
+\draw (-1.5,0) -- (1.5,0);
+\draw (0,-1.5) -- (0,1.5);
+\draw (0,0) circle [radius=1cm];
+\shadedraw[left color=gray,right color=green, draw=green!50!black]
+(0,0) -- (3mm,0mm)
+arc [start angle=0, end angle=30, radius=3mm] -- cycle;
+\end{tikzpicture}
+#+end_example
+
+** Specifying Coordinates
+# - [[file:~/myDrive/org/pgfmanual.pdf::40]]
+
+Karl now wants to add the sine and cosine lines. He knows already that he can
+use the =color== option to set the lines’ colors. So, what is the best way to
+specify the coordinates?
+
+There are different ways of specifying coordinates. The easiest way is to say
+something like =(10pt,2cm)=. This means 10pt in x-direction and 2cm in
+y-directions. Alternatively, you can also leave out the units as in =(1,2)=,
+which means “one times the current x-vector plus twice the current y-vector”.
+These vectors default to 1cm in the x-direction and 1cm in the y-direction,
+respectively.
+
+In order to specify points in polar coordinates, use the notation =(30:1cm)=,
+which means 1cm in direction 30 degree. This is obviously quite useful to
+“get to the point (cos 30\(^\circ\) , sin 30\(^\circ\) ) on the circle”.
+
+You can add a single *+* sign in front of a coordinate or two of them as
+in =+(0cm,1cm)= or =++(2cm,0cm)=. Such coordinates are interpreted differently:
+The first form means “1cm upwards from the previous specified position” and
+the second means “2cm to the right of the previous specified position,
+making this the new specified position”. For example, we can draw the sine
+line as follows:
+
+#+begin_export latex
+\begin{tikzpicture}[scale=3]
+\clip (-0.1,-0.2) rectangle (1.1,0.75);
+\draw[step=.5cm,gray,very thin] (-1.4,-1.4) grid (1.4,1.4);
+\draw (-1.5,0) -- (1.5,0);
+\draw (0,-1.5) -- (0,1.5);
+\draw (0,0) circle [radius=1cm];
+\filldraw[fill=green!20,draw=green!50!black] (0,0) -- (3mm,0mm)
+arc [start angle=0, end angle=30, radius=3mm] -- cycle;
+\draw[red,very thick] (30:1cm) -- +(0,-0.5);
+\end{tikzpicture}
+#+end_export
+
+#+begin_example latex
+\begin{tikzpicture}[scale=3]
+\clip (-0.1,-0.2) rectangle (1.1,0.75);
+\draw[step=.5cm,gray,very thin] (-1.4,-1.4) grid (1.4,1.4);
+\draw (-1.5,0) -- (1.5,0);
+\draw (0,-1.5) -- (0,1.5);
+\draw (0,0) circle [radius=1cm];
+\filldraw[fill=green!20,draw=green!50!black] (0,0) -- (3mm,0mm)
+arc [start angle=0, end angle=30, radius=3mm] -- cycle;
+\draw[red,very thick] (30:1cm) -- +(0,-0.5);
+\end{tikzpicture}
+#+end_example
+
+Karl used the fact sin 30\(^\circ\) = 1/2. However, he very much doubts that his
+students know this, so it would be nice to have a way of specifying “the
+point straight down from =(30:1cm)= that lies on the x-axis”. This is, indeed,
+possible using a special syntax: Karl can write
+: (30:1cm |- 0,0)
+
+
+In general, the meaning of
+
+(\(\langle\)p\(\rangle\) |- \(\langle\)q\(\rangle\))
+
+is “the intersection of a vertical line through \(p\) and a horizontal line
+through \(q\)”.
+
+
+Next, let us draw the cosine line. One way would be to say
+: (30:1cm |- 0,0) -- (0,0)
+Another way is the following: we “continue” from
+where the sine ends:
+
+#+begin_export latex
+\begin{tikzpicture}[scale=3]
+\clip (-0.1,-0.2) rectangle (1.1,0.75);
+\draw[step=.5cm,gray,very thin] (-1.4,-1.4) grid (1.4,1.4);
+\draw (-1.5,0) -- (1.5,0);
+\draw (0,-1.5) -- (0,1.5);
+\draw (0,0) circle [radius=1cm];
+\filldraw[fill=green!20,draw=green!50!black] (0,0) -- (3mm,0mm)
+arc [start angle=0, end angle=30, radius=3mm] -- cycle;
+\draw[red,very thick] (30:1cm) -- +(0,-0.5);
+\draw[blue,very thick] (30:1cm) ++(0,-0.5) -- (0,0);
+\end{tikzpicture}
+#+end_export
+
+#+begin_example latex
+\begin{tikzpicture}[scale=3]
+\clip (-0.1,-0.2) rectangle (1.1,0.75);
+\draw[step=.5cm,gray,very thin] (-1.4,-1.4) grid (1.4,1.4);
+\draw (-1.5,0) -- (1.5,0);
+\draw (0,-1.5) -- (0,1.5);
+\draw (0,0) circle [radius=1cm];
+\filldraw[fill=green!20,draw=green!50!black] (0,0) -- (3mm,0mm)
+arc [start angle=0, end angle=30, radius=3mm] -- cycle;
+\draw[red,very thick] (30:1cm) -- +(0,-0.5);
+\draw[blue,very thick] (30:1cm) ++(0,-0.5) -- (0,0);
+\end{tikzpicture}
+#+end_example
+
+
+Note that there is no =--= between =(30:1cm)= and =++(0,-0.5)=. In detail, this
+path is interpreted as follows: “First, the =(30:1cm)= tells me to move my pen
+to (cos 30 \(^\circ\) , 1/2). Next, there comes another coordinate
+specification, so I move my pen there without drawing anything. This new point
+is half a unit down from the last position, thus it is at (cos 30 \(^\circ\), 0).
+Finally, I move the pen to the origin, but this time drawing something
+(because of the =--=).”
+
+To appreciate the difference between =+= and =++= consider the following example:
+
+#+begin_export latex
+\begin{tikzpicture}
+\def\rectanglepath{-- ++(1cm,0cm) -- ++(0cm,1cm) -- ++(-1cm,0cm) -- cycle}
+\draw (0,0) \rectanglepath;
+\draw (1.5,0) \rectanglepath;
+\end{tikzpicture}
+#+end_export
+
+#+begin_example latex
+\begin{tikzpicture}
+\def\rectanglepath{-- ++(1cm,0cm) -- ++(0cm,1cm) -- ++(-1cm,0cm) -- cycle}
+\draw (0,0) \rectanglepath;
+\draw (1.5,0) \rectanglepath;
+\end{tikzpicture}
+#+end_example
+
+By comparison, when using a single =+=, the coordinates are different:
+
+#+begin_export latex
+\begin{tikzpicture}
+\def\rectanglepath{-- +(1cm,0cm) -- +(1cm,1cm) -- +(0cm,1cm) -- cycle}
+\draw (0,0) \rectanglepath;
+\draw (1.5,0) \rectanglepath;
+\end{tikzpicture}
+#+end_export
+
+#+begin_example latex
+\begin{tikzpicture}
+\def\rectanglepath{-- +(1cm,0cm) -- +(1cm,1cm) -- +(0cm,1cm) -- cycle}
+\draw (0,0) \rectanglepath;
+\draw (1.5,0) \rectanglepath;
+\end{tikzpicture}
+#+end_example
+
+Naturally, all of this could have been written more clearly and more
+economically like this (either with a single or a double =+=):
+
+#+begin_export latex
+\tikz \draw (0,0) rectangle +(1,1) (1.5,0) rectangle +(1,1);
+#+end_export
+
+#+begin_example latex
+\tikz \draw (0,0) rectangle +(1,1) (1.5,0) rectangle +(1,1);
+#+end_example
+
+** Intersecting Paths
+# - [[file:~/myDrive/org/pgfmanual.pdf::41]]
+
+Karl is left with the line for \(tan \alpha\), which seems difficult to specify
+using transformations and polar coordinates. The first --- and easiest ---
+thing he can do is so simply use the coordinate =(1,{tan(30)})= since TikZ’s
+math engine knows how to compute things like \(tan(30)\). Note the added braces
+since, otherwise, TikZ’s parser would think that the first closing parenthesis
+ends the coordinate (in general, you need to add braces around components of
+coordinates when these components contain parentheses).
+
+Karl can, however, also use a more elaborate, but also more “geometric” way
+of computing the length of the orange line: He can specify intersections of
+paths as coordinates. The line for tan α starts at =(1, 0)= and goes upward to
+a point that is at the intersection of a line going “up” and a line going
+from the origin through =(30:1cm)=. Such computations are made available by
+the =intersections= library.
+
+: % (add `\usetikzlibrary{intersections}' after loading tikz in the preamble)
+
+What Karl must do is to create two “invisible” paths that intersect at the
+position of interest. Creating paths that are not otherwise seen can be done
+using the =\path= command without any options like =draw= or =fill=. Then, Karl
+can add the =name path= option to the path for later reference. Once the paths
+have been constructed, Karl can use the =name intersections= to assign names to
+the coordinate for later reference.
+
+#+begin_example latex
+\path [name path=upward line] (1,0) -- (1,1);
+\path [name path=sloped line] (0,0) -- (30:1.5cm); % a bit longer, so that
+% there is an intersection
+% (add `\usetikzlibrary{intersections}' after loading tikz in the preamble)
+\draw [name intersections={of=upward line and sloped line, by=x}]
+[very thick,orange] (1,0) -- (x);
+#+end_example
+
+** Adding Arrow Tips
+# - [[file:~/myDrive/org/pgfmanual.pdf::41]]
+
+Karl now wants to add the little arrow tips at the end of the axes. He
+has noticed that in many plots, even in scientific journals, these arrow
+tips seem to be missing, presumably because the generating programs cannot
+produce them. Karl thinks arrow tips belong at the end of axes. His son
+agrees. His students do not care about arrow tips.
+
+It turns out that adding arrow tips is pretty easy: Karl adds the option =->=
+to the drawing commands for the axes:
+
+#+begin_export latex
+% \usetikzlibrary {intersections} at the beginning of document right
+% after \usepackage{tikz}
+\begin{tikzpicture}[scale=3]
+\clip (-0.1,-0.2) rectangle (1.1,1.51);
+\draw[step=.5cm,gray,very thin] (-1.4,-1.4) grid (1.4,1.4);
+\draw[->] (-1.5,0) -- (1.5,0);
+\draw[->] (0,-1.5) -- (0,1.5);
+\draw (0,0) circle [radius=1cm];
+\filldraw[fill=green!20,draw=green!50!black] (0,0) -- (3mm,0mm)
+arc [start angle=0, end angle=30, radius=3mm] -- cycle;
+\draw[red,very thick]
+(30:1cm) -- +(0,-0.5);
+\draw[blue,very thick]
+(30:1cm) ++(0,-0.5) -- (0,0);
+\path [name path=upward line] (1,0) -- (1,1);
+\path [name path=sloped line] (0,0) -- (30:1.5cm);
+\draw [name intersections={of=upward line and sloped line, by=x}]
+[very thick,orange] (1,0) -- (x);
+\end{tikzpicture}
+#+end_export
+
+#+begin_example latex
+% \usetikzlibrary {intersections} at the beginning of document right
+% after \usepackage{tikz}
+\begin{tikzpicture}[scale=3]
+\clip (-0.1,-0.2) rectangle (1.1,1.51);
+\draw[step=.5cm,gray,very thin] (-1.4,-1.4) grid (1.4,1.4);
+\draw[->] (-1.5,0) -- (1.5,0);
+\draw[->] (0,-1.5) -- (0,1.5);
+\draw (0,0) circle [radius=1cm];
+\filldraw[fill=green!20,draw=green!50!black] (0,0) -- (3mm,0mm)
+arc [start angle=0, end angle=30, radius=3mm] -- cycle;
+\draw[red,very thick]
+(30:1cm) -- +(0,-0.5);
+\draw[blue,very thick]
+(30:1cm) ++(0,-0.5) -- (0,0);
+\path [name path=upward line] (1,0) -- (1,1);
+\path [name path=sloped line] (0,0) -- (30:1.5cm);
+\draw [name intersections={of=upward line and sloped line, by=x}]
+[very thick,orange] (1,0) -- (x);
+\end{tikzpicture}
+#+end_example
+
+If Karl had used the option =<-= instead of =->=, arrow tips would have been
+put at the beginning of the path. The option =<->= puts arrow tips at both
+ends of the path.
+
+There are certain restrictions to the kind of paths to which arrow tips
+can be added. As a rule of thumb, you can add arrow tips only to a single
+open “line”. For example, you cannot add tips to, say, a rectangle or a
+circle. However, you can add arrow tips to curved paths and to paths that
+have several segments, as in the following examples:
+
+#+begin_export latex
+\begin{tikzpicture}
+\draw [<->] (0,0) arc [start angle=180, end angle=30, radius=10pt];
+\draw [<->] (1,0) -- (1.5cm,10pt) -- (2cm,0pt) -- (2.5cm,10pt);
+\end{tikzpicture}
+#+end_export
+
+#+begin_example latex
+\begin{tikzpicture}
+\draw [<->] (0,0) arc [start angle=180, end angle=30, radius=10pt];
+\draw [<->] (1,0) -- (1.5cm,10pt) -- (2cm,0pt) -- (2.5cm,10pt);
+\end{tikzpicture}
+#+end_example
+
+Karl has a more detailed look at the arrow that TikZ puts at the end. It
+looks like this when he zooms it: \(\rightarrow\) .
+
+The shape seems vaguely familiar and, indeed, this is exactly the end of TEX’s
+standard arrow used in something like \(f : A \rightarrow  B\).
+
+Karl likes the arrow, especially since it is not “as thick” as the arrows
+offered by many other packages. However, he expects that, sometimes, he might
+need to use some other kinds of arrow. To do so, Karl can say
+=>==\(\langle\) /kind of end arrow tip/ \(\rangle\),
+where \( \langle \) /kind of end arrow tip/ \(\rangle \) is a special
+arrow tip specification. For example, if Karl says =>=Stealth=, then he tells
+TikZ that he would like “stealth-fighter-like” arrow tips:
+
+#+begin_export latex
+\usetikzlibrary {arrows.meta}
+\begin{tikzpicture}[>=Stealth]
+\draw [->] (0,0) arc [start angle=180, end angle=30, radius=10pt];
+\draw [<<-,very thick] (1,0) -- (1.5cm,10pt) -- (2cm,0pt) -- (2.5cm,10pt);
+\end{tikzpicture}
+#+end_export
+
+#+begin_example latex
+\usetikzlibrary {arrows.meta}
+\begin{tikzpicture}[>=Stealth]
+\draw [->] (0,0) arc [start angle=180, end angle=30, radius=10pt];
+\draw [<<-,very thick] (1,0) -- (1.5cm,10pt) -- (2cm,0pt) -- (2.5cm,10pt);
+\end{tikzpicture}
+#+end_example
+
+** Scoping
+# - [[file:~/myDrive/org/pgfmanual.pdf::42]]
+
+Karl saw already that there are numerous graphic options that affect
+how paths are rendered. Often, he would like to apply certain options to
+a whole set of graphic commands. For example, Karl might wish to draw
+three paths using a =thick= pen, but would like everything else to be
+drawn “normally”.
+
+If Karl wishes to set a certain graphic option for the whole picture,
+he can simply pass this option to the =\tikz= command or to the ={tikzpicture}=
+environment (Gerda would pass the options to =\tikzpicture= and Hans passes
+them to =\starttikzpicture=). However, if Karl wants to apply graphic options
+to a local group, he put these commands inside a ={scope}= environment
+(Gerda uses =\scope= and =\endscope=, Hans uses =\startscope= and =\stopscope=).
+This environment takes graphic options as an optional argument and these
+options apply to everything inside the scope, but not to anything outside.
+
+Here is an example:
+
+#+begin_export latex
+\begin{tikzpicture}[ultra thick]
+\draw (0,0) -- (0,1);
+\begin{scope}[thin]
+\draw (1,0) -- (1,1);
+\draw (2,0) -- (2,1);
+\end{scope}
+\draw (3,0) -- (3,1);
+\end{tikzpicture}
+#+end_export
+
+#+begin_example latex
+\begin{tikzpicture}[ultra thick]
+\draw (0,0) -- (0,1);
+\begin{scope}[thin]
+\draw (1,0) -- (1,1);
+\draw (2,0) -- (2,1);
+\end{scope}
+\draw (3,0) -- (3,1);
+\end{tikzpicture}
+#+end_example
+
+
+Scoping has another interesting effect: Any changes to the clipping area
+are local to the scope. Thus, if you say =\clip= somewhere inside a scope,
+the effect of the =\clip= command ends at the end of the scope. This is useful
+since there is no other way of “enlarging” the clipping area.
+
+Karl has also already seen that giving options to commands like =\draw= apply
+only to that command. It turns out that the situation is slightly more
+complex. First, options to a command like =\draw= are not really options to
+the command, but they are “path options” and can be given anywhere on the
+path. So, instead of =\draw[thin] (0,0) -- (1,0)=; one can also write
+=\draw (0,0) [thin] -- (1,0)=; or =\draw (0,0) -- (1,0) [thin]=;; all of these
+have the same effect. This might seem strange since in the last case, it
+would appear that the =thin= should take effect only “after” the line from
+=(0, 0)= to =(1, 0)= has been drawn. However, most graphic options only apply
+to the whole path. Indeed, if you say both =thin= and =thick= on the same path,
+the last option given will “win”.
+
+When reading the above, Karl notices that only “most” graphic options apply
+to the whole path. Indeed, all transformation options do /not/ apply to the
+whole path, but only to “everything following them on the path”. We will
+have a more detailed look at this in a moment. Nevertheless, all options
+given during a path construction apply only to this path.
+
+** Transformations
+# - [[file:~/myDrive/org/pgfmanual.pdf::43]]
+
+When you specify a coordinate like =(1cm,1cm)=, where is that coordinate
+placed on the page? To determine the position, TikZ, TEX, and pdf or
+PostScript all apply certain transformations to the given coordinate in
+order to determine the final position on the page.
+
+TikZ provides numerous options that allow you to transform coordinates in
+TikZ’s private coordinate system. For example, the =xshift= option allows
+you to shift all subsequent points by a certain amount:
+
+#+begin_export latex
+\tikz \draw (0,0) -- (0,0.5) [xshift=2pt] (0,0) -- (0,0.5);
+#+end_export
+
+#+begin_example latex
+\tikz \draw (0,0) -- (0,0.5) [xshift=2pt] (0,0) -- (0,0.5);
+#+end_example
+
+It is important to note that you can change transformation “in the middle
+of a path”, a feature that is not supported by pdf or PostScript. The reason
+is that TikZ keeps track of its own transformation matrix. Here is a
+more complicated example:
+
+#+begin_export latex
+\begin{tikzpicture}[even odd rule,rounded corners=2pt,x=10pt,y=10pt]
+\filldraw[fill=yellow!80!black]  (0,0)    rectangle (1,1)
+         [xshift=5pt,yshift=5pt] (0,0)    rectangle (1,1)
+         [rotate=30]             (-1,-1)  rectangle (2,2);
+\end{tikzpicture}
+#+end_export
+
+#+begin_example latex
+\begin{tikzpicture}[even odd rule,rounded corners=2pt,x=10pt,y=10pt]
+\filldraw[fill=yellow!80!black]  (0,0)    rectangle (1,1)
+         [xshift=5pt,yshift=5pt] (0,0)    rectangle (1,1)
+         [rotate=30]             (-1,-1)  rectangle (2,2);
+\end{tikzpicture}
+#+end_example
+
+The most useful transformations are =xshift= and =yshift= for shifting,
+=shift= for shifting to a given point as in =shift={(1,0)}= or
+=shift={+(0,0)}= (the braces are necessary so that TEX does not mistake
+the comma for separating options), =rotate= for rotating by a certain angle
+(there is also a =rotate around= for rotating around a given point), =scale=
+for scaling by a certain factor, =xscale= and =yscale= for scaling only in
+the /x/- or /y/-direction (=xscale =-1= is a flip), and =xslant= and =yslant=
+for slanting. If these transformation and those that I have not mentioned are
+not sufficient, the =cm= option allows you to apply an arbitrary
+transformation matrix. Karl’s students, by the way, do not know what
+a transformation matrix is.
+
+** Repeating Things: For-Loops
+# - [[file:~/myDrive/org/pgfmanual.pdf::43]]
+
+Karl’s next aim is to add little ticks on the axes at positions −1, −1/2,
+1/2, and 1. For this, it would be nice to use some kind of “loop”, especially
+since he wishes to do the same thing at each of these positions. There are
+different packages for doing this. LATEX has its own internal command for
+this, =pstricks= comes along with the powerful =\multido= command. All of these
+can be used together with TikZ, so if you are familiar with them, feel free
+to use them. TikZ introduces yet another command, called =\foreach=, which
+I introduced since I could never remember the syntax of the other packages.
+=\foreach= is defined in the package =pgffor= and can be used independently of
+TikZ, but TikZ includes it automatically. In its basic form, the \foreach
+command is easy to use:
+
+#+begin_export latex
+\foreach \x in {1,2,3} {$x =\x$, }
+#+end_export
+
+#+begin_example latex
+\foreach \x in {1,2,3} {$x =\x$, }
+#+end_example
+
+The general syntax is
+
+=\foreach=
+{{{langle}}} /variable/ {{{rangle}}}
+=in=
+{{{{langle}}} /list of values/ {{{rangle}}}}
+{{{langle}}} /commands/ {{{rangle}}}.
+
+Inside the
+{{{langle}}} /commands/ {{{rangle}}},
+the
+{{{langle}}} /variable/ {{{rangle}}}
+will be assigned to the different values. If the
+{{{langle}}} /commands/ {{{rangle}}}
+do not start with a brace, everything up to the next semicolon is used as
+{{{langle}}} /commands/ {{{rangle}}}.
+
+For Karl and the ticks on the axes, he could use the following code:
+
+#+begin_export latex
+\begin{tikzpicture}[scale=3]
+\clip (-0.1,-0.2) rectangle (1.1,1.51);
+\draw[step=.5cm,gray,very thin] (-1.4,-1.4) grid (1.4,1.4);
+\filldraw[fill=green!20,draw=green!50!black] (0,0) -- (3mm,0mm)
+arc [start angle=0, end angle=30, radius=3mm] -- cycle;
+\draw[->] (-1.5,0) -- (1.5,0);
+\draw[->] (0,-1.5) -- (0,1.5);
+\draw (0,0) circle [radius=1cm];
+\foreach \x in {-1cm,-0.5cm,1cm}
+\draw (\x,-1pt) -- (\x,1pt);
+\foreach \y in {-1cm,-0.5cm,0.5cm,1cm}
+\draw (-1pt,\y) -- (1pt,\y);
+\end{tikzpicture}
+#+end_export
+
+#+begin_example latex
+\begin{tikzpicture}[scale=3]
+\clip (-0.1,-0.2) rectangle (1.1,1.51);
+\draw[step=.5cm,gray,very thin] (-1.4,-1.4) grid (1.4,1.4);
+\filldraw[fill=green!20,draw=green!50!black] (0,0) -- (3mm,0mm)
+arc [start angle=0, end angle=30, radius=3mm] -- cycle;
+\draw[->] (-1.5,0) -- (1.5,0);
+\draw[->] (0,-1.5) -- (0,1.5);
+\draw (0,0) circle [radius=1cm];
+\foreach \x in {-1cm,-0.5cm,1cm}
+\draw (\x,-1pt) -- (\x,1pt);
+\foreach \y in {-1cm,-0.5cm,0.5cm,1cm}
+\draw (-1pt,\y) -- (1pt,\y);
+\end{tikzpicture}
+#+end_example
+
+As a matter of fact, there are many different ways of creating the ticks.
+For example, Karl could have put the =\draw ...=; inside curly braces. He
+could also have used, say,
+: \foreach \x in {-1,-0.5,1}
+:   \draw[xshift=\x cm] (0pt,-1pt) -- (0pt,1pt);
+
+Karl is curious what would happen in a more complicated situation where
+there are, say, 20 ticks. It seems bothersome to explicitly mention all
+these numbers in the set for =\foreach=. Indeed, it is possible to use =...=
+inside the =\foreach= statement to iterate over a large number of values
+(which must, however, be dimensionless real numbers) as in the
+following example:
+
+
+#+begin_export latex
+\tikz \foreach \x in {1,...,10}
+\draw (\x,0) circle (0.4cm);
+#+end_export
+
+#+begin_example latex
+\tikz \foreach \x in {1,...,10}
+\draw (\x,0) circle (0.4cm);
+#+end_example
+
+If you provide /two/ numbers before the =...=, the =\foreach= statement
+will use their difference for the stepping:
+
+#+begin_export latex
+\tikz \foreach \x in {-1,-0.5,...,1}
+\draw (\x cm,-1pt) -- (\x cm,1pt);
+#+end_export
+
+#+begin_example latex
+\tikz \foreach \x in {-1,-0.5,...,1}
+\draw (\x cm,-1pt) -- (\x cm,1pt);
+#+end_example
+
+We can also nest loops to create interesting effects:
+
+#+begin_export latex
+\begin{tikzpicture}
+\foreach \x in {1,2,...,5,7,8,...,12}
+\foreach \y in {1,...,5}
+{
+\draw (\x,\y) +(-.5,-.5) rectangle ++(.5,.5);
+\draw (\x,\y) node{\x,\y};
+}
+\end{tikzpicture}
+#+end_export
+
+#+begin_example latex
+\begin{tikzpicture}
+\foreach \x in {1,2,...,5,7,8,...,12}
+\foreach \y in {1,...,5}
+{
+\draw (\x,\y) +(-.5,-.5) rectangle ++(.5,.5);
+\draw (\x,\y) node{\x,\y};
+}
+\end{tikzpicture}
+#+end_example
+
+The =\foreach= statement can do even trickier stuff, but the above gives
+the idea.
+
+** Adding Text
+# - [[file:~/myDrive/org/pgfmanual.pdf::45]]
+
+Karl is, by now, quite satisfied with the picture. However, the most
+important parts, namely the labels, are still missing!
+
+TikZ offers an easy-to-use and powerful system for adding text and, more
+generally, complex shapes to a picture at specific positions. The basic
+idea is the following: When TikZ is constructing a path and encounters the
+keyword =node= in the middle of a path, it reads a /node specification/. The
+keyword =node= is typically followed by some options and then some text between
+curly braces. This text is put inside a normal TEX box (if the node
+specification directly follows a coordinate, which is usually the case, TikZ
+is able to perform some magic so that it is even possible to use verbatim
+text inside the boxes) and then placed at the current position, that is, at
+the last specified position (possibly shifted a bit, according to the given
+options). However, all nodes are drawn only after the path has been
+completely drawn/filled/shaded/clipped/whatever.
+
+
+#+begin_export latex
+\begin{tikzpicture}
+\draw (0,0) rectangle (2,2);
+\draw (0.5,0.5) node [fill=yellow!80!black]
+{Text at \verb!node 1!}
+-- (1.5,1.5) node {Text at \verb!node 2!};
+\end{tikzpicture}
+#+end_export
+
+#+begin_example latex
+\begin{tikzpicture}
+\draw (0,0) rectangle (2,2);
+\draw (0.5,0.5) node [fill=yellow!80!black]
+{Text at \verb!node 1!}
+-- (1.5,1.5) node {Text at \verb!node 2!};
+\end{tikzpicture}
+#+end_example
+
+
+Obviously, Karl would not only like to place nodes /on/ the last specified
+position, but also to the left or the right of these positions. For this,
+every node object that you put in your picture is equipped with several
+/anchors/. For example, the =north= anchor is in the middle at the upper end of
+the shape, the =south= anchor is at the bottom and the =north east= anchor is
+in the upper right corner. When you give the option =anchor=north=, the text
+will be placed such that this northern anchor will lie on the current
+position and the text is, thus, below the current position. Karl uses
+this to draw the ticks as follows:
+
+
+#+begin_export latex
+\begin{tikzpicture}[scale=3]
+\clip (-0.6,-0.2) rectangle (0.6,1.51);
+\draw[step=.5cm,help lines] (-1.4,-1.4) grid (1.4,1.4);
+\filldraw[fill=green!20,draw=green!50!black] (0,0) -- (3mm,0mm)
+arc [start angle=0, end angle=30, radius=3mm] -- cycle;
+\draw[->] (-1.5,0) -- (1.5,0);
+\draw[->] (0,-1.5) -- (0,1.5);
+\draw (0,0) circle [radius=1cm];
+\foreach \x in {-1,-0.5,1}
+\draw (\x cm,1pt) -- (\x cm,-1pt) node[anchor=north] {$\x$};
+\foreach \y in {-1,-0.5,0.5,1}
+\draw (1pt,\y cm) -- (-1pt,\y cm) node[anchor=east] {$\y$};
+\end{tikzpicture}
+#+end_export
+
+#+begin_example latex
+\begin{tikzpicture}[scale=3]
+\clip (-0.6,-0.2) rectangle (0.6,1.51);
+\draw[step=.5cm,help lines] (-1.4,-1.4) grid (1.4,1.4);
+\filldraw[fill=green!20,draw=green!50!black] (0,0) -- (3mm,0mm)
+arc [start angle=0, end angle=30, radius=3mm] -- cycle;
+\draw[->] (-1.5,0) -- (1.5,0);
+\draw[->] (0,-1.5) -- (0,1.5);
+\draw (0,0) circle [radius=1cm];
+\foreach \x in {-1,-0.5,1}
+\draw (\x cm,1pt) -- (\x cm,-1pt) node[anchor=north] {$\x$};
+\foreach \y in {-1,-0.5,0.5,1}
+\draw (1pt,\y cm) -- (-1pt,\y cm) node[anchor=east] {$\y$};
+\end{tikzpicture}
+#+end_example
+
+
+This is quite nice, already. Using these anchors, Karl can now add most
+of the other text elements. However, Karl thinks that, though “correct”,
+it is quite counter-intuitive that in order to place something /below/ a
+given point, he has to use the /north/ anchor. For this reason, there is an
+option called =below=, which does the same as =anchor=north=. Similarly, =above
+right= does the same as =anchor=south west=. In addition, =below= takes an
+optional dimension argument. If given, the shape will additionally be
+shifted downwards by the given amount. So, =below=1pt= can be used to put a
+text label below some point and, additionally shift it 1pt downwards.
+
+Karl is not quite satisfied with the ticks. He would like to have 1/2 or
+\(\binom{1}{2}\) shown instead of 0.5, partly to show off the nice capabilities
+of TEX and TikZ, partly because for positions like 1/3 or \(\pi\) it is
+certainly very much preferable to have the “mathematical” tick there instead
+of just the “numeric” tick. His students, on the other hand, prefer 0.5
+over 1/2 since they are not too fond of fractions in general.
+
+Karl now faces a problem: For the =\foreach= statement, the position =\x=
+should still be given as =0.5= since TikZ will not know where =\frac{1}{2}=
+is supposed to be. On the other hand, the typeset text should really be
+=\frac{1}{2}=. To solve this problem, =\foreach= offers a special syntax:
+Instead of having one variable =\x=, Karl can specify two (or even more)
+variables separated by a slash as in =\x / \xtext=. Then, the elements in
+the set over which =\foreach= iterates must also be of the form
+{{{langle}}} /first/ {{{rangle}}}/{{{langle}}} /second/ {{{rangle}}}.
+In each iteration, =\x= will be set to
+{{{langle}}} /first/ {{{rangle}}}
+and =\xtext=
+will be set to
+{{{langle}}} /second/ {{{rangle}}}.
+If no
+{{{langle}}} /second/ {{{rangle}}}
+is given, the
+{{{langle}}} /first/ {{{rangle}}}
+will be used again. So, here is the new code for the ticks:
+
+#+begin_export latex
+\begin{tikzpicture}[scale=3]
+\clip (-0.6,-0.2) rectangle (0.6,1.51);
+\draw[step=.5cm,help lines] (-1.4,-1.4) grid (1.4,1.4);
+\filldraw[fill=green!20,draw=green!50!black] (0,0) -- (3mm,0mm)
+arc [start angle=0, end angle=30, radius=3mm] -- cycle;
+\draw[->] (-1.5,0) -- (1.5,0); \draw[->] (0,-1.5) -- (0,1.5);
+\draw (0,0) circle [radius=1cm];
+\foreach \x/\xtext in {-1, -0.5/-\frac{1}{2}, 1}
+\draw (\x cm,1pt) -- (\x cm,-1pt) node[anchor=north] {$\xtext$};
+\foreach \y/\ytext in {-1, -0.5/-\frac{1}{2}, 0.5/\frac{1}{2}, 1}
+\draw (1pt,\y cm) -- (-1pt,\y cm) node[anchor=east] {$\ytext$};
+\end{tikzpicture}
+#+end_export
+
+#+begin_example latex
+\begin{tikzpicture}[scale=3]
+\clip (-0.6,-0.2) rectangle (0.6,1.51);
+\draw[step=.5cm,help lines] (-1.4,-1.4) grid (1.4,1.4);
+\filldraw[fill=green!20,draw=green!50!black] (0,0) -- (3mm,0mm)
+arc [start angle=0, end angle=30, radius=3mm] -- cycle;
+\draw[->] (-1.5,0) -- (1.5,0); \draw[->] (0,-1.5) -- (0,1.5);
+\draw (0,0) circle [radius=1cm];
+\foreach \x/\xtext in {-1, -0.5/-\frac{1}{2}, 1}
+\draw (\x cm,1pt) -- (\x cm,-1pt) node[anchor=north] {$\xtext$};
+\foreach \y/\ytext in {-1, -0.5/-\frac{1}{2}, 0.5/\frac{1}{2}, 1}
+\draw (1pt,\y cm) -- (-1pt,\y cm) node[anchor=east] {$\ytext$};
+\end{tikzpicture}
+#+end_example
+
+
+Karl is quite pleased with the result, but his son points out that this
+is still not perfectly satisfactory: 2 The grid and the circle interfere
+with the numbers and decrease their legibility. Karl is not very concerned
+by this (his students do not even notice), but his son insists that there
+is an easy solution: Karl can add the =[fill=white]= option to fill out the
+background of the text shape with a white color.
+
+
+The next thing Karl wants to do is to add the labels like =sin= \(\alpha\).
+For this, he would like to place a label “in the middle of the line”. To do so,
+instead of specifying the label =node= ={$\sin\alpha$}= directly after one of
+the endpoints of the line (which would place the label at that endpoint),
+Karl can give the label directly after the =--=, before the coordinate.
+By default, this places the label in the middle of the line, but the
+=pos== options can be used to modify this. Also, options like =near start=
+and =near end= can be used to modify this position:
+
+#+begin_export latex
+\begin{tikzpicture}[scale=3]
+\clip (-2,-0.2) rectangle (2,0.8);
+\draw[step=.5cm,gray,very thin] (-1.4,-1.4) grid (1.4,1.4);
+\filldraw[fill=green!20,draw=green!50!black] (0,0) -- (3mm,0mm)
+arc [start angle=0, end angle=30, radius=3mm] -- cycle;
+\draw[->] (-1.5,0) -- (1.5,0) coordinate (x axis);
+\draw[->] (0,-1.5) -- (0,1.5) coordinate (y axis);
+\draw (0,0) circle [radius=1cm];
+\draw[very thick,red]
+(30:1cm) -- node[left=1pt,fill=white] {$\sin \alpha$} (30:1cm |- x axis);
+\draw[very thick,blue]
+(30:1cm |- x axis) -- node[below=2pt,fill=white] {$\cos \alpha$} (0,0);
+\path [name path=upward line] (1,0) -- (1,1);
+\path [name path=sloped line] (0,0) -- (30:1.5cm);
+\draw [name intersections={of=upward line and sloped line, by=t}]
+[very thick,orange] (1,0) -- node [right=1pt,fill=white]
+{$\displaystyle \tan \alpha \color{black}=
+\frac{{\color{red}\sin \alpha}}{\color{blue}\cos \alpha}$} (t);
+\draw (0,0) -- (t);
+\foreach \x/\xtext in {-1, -0.5/-\frac{1}{2}, 1}
+\draw (\x cm,1pt) -- (\x cm,-1pt) node[anchor=north,fill=white] {$\xtext$};
+\foreach \y/\ytext in {-1, -0.5/-\frac{1}{2}, 0.5/\frac{1}{2}, 1}
+\draw (1pt,\y cm) -- (-1pt,\y cm) node[anchor=east,fill=white] {$\ytext$};
+\end{tikzpicture}
+#+end_export
+
+#+begin_example latex
+\clip (-2,-0.2) rectangle (2,0.8);
+\draw[step=.5cm,gray,very thin] (-1.4,-1.4) grid (1.4,1.4);
+\filldraw[fill=green!20,draw=green!50!black] (0,0) -- (3mm,0mm)
+arc [start angle=0, end angle=30, radius=3mm] -- cycle;
+\draw[->] (-1.5,0) -- (1.5,0) coordinate (x axis);
+\draw[->] (0,-1.5) -- (0,1.5) coordinate (y axis);
+\draw (0,0) circle [radius=1cm];
+\draw[very thick,red]
+(30:1cm) -- node[left=1pt,fill=white] {$\sin \alpha$} (30:1cm |- x axis);
+\draw[very thick,blue]
+(30:1cm |- x axis) -- node[below=2pt,fill=white] {$\cos \alpha$} (0,0);
+\path [name path=upward line] (1,0) -- (1,1);
+\path [name path=sloped line] (0,0) -- (30:1.5cm);
+\draw [name intersections={of=upward line and sloped line, by=t}]
+[very thick,orange] (1,0) -- node [right=1pt,fill=white]
+{$\displaystyle \tan \alpha \color{black}=
+\frac{{\color{red}\sin \alpha}}{\color{blue}\cos \alpha}$} (t);
+\draw (0,0) -- (t);
+\foreach \x/\xtext in {-1, -0.5/-\frac{1}{2}, 1}
+\draw (\x cm,1pt) -- (\x cm,-1pt) node[anchor=north,fill=white] {$\xtext$};
+\foreach \y/\ytext in {-1, -0.5/-\frac{1}{2}, 0.5/\frac{1}{2}, 1}
+\draw (1pt,\y cm) -- (-1pt,\y cm) node[anchor=east,fill=white] {$\ytext$};
+\end{tikzpicture}
+#+end_example
+
+
+You can also position labels on curves and, by adding the =sloped=
+option, have them rotated such that they match the line’s slope.
+Here is an example:
+
+#+begin_export latex
+\begin{tikzpicture}
+\draw (0,0) .. controls (6,1) and (9,1) ..
+node[near start,sloped,above] {near start}
+node {midway}
+node[very near end,sloped,below] {very near end} (12,0);
+\end{tikzpicture}
+#+end_export
+
+#+begin_example latex
+\begin{tikzpicture}
+\draw (0,0) .. controls (6,1) and (9,1) ..
+node[near start,sloped,above] {near start}
+node {midway}
+node[very near end,sloped,below] {very near end} (12,0);
+\end{tikzpicture}
+#+end_example
+
+
+It remains to draw the explanatory text at the right of the picture.
+The main difficulty here lies in limiting the width of the text “label”,
+which is quite long, so that line breaking is used. Fortunately, Karl can
+use the option =text width=6cm= to get the desired effect. So,
+here is the full code:
+
+#+begin_export latex
+\begin{tikzpicture}
+[scale=3,line cap=round,
+% Styles
+axes/.style=,
+important line/.style={very thick},
+information text/.style={rounded corners,fill=red!10,inner sep=1ex}]
+% Colors
+\colorlet{anglecolor}{green!50!black}
+\colorlet{sincolor}{red}
+\colorlet{tancolor}{orange!80!black}
+\colorlet{coscolor}{blue}
+% The graphic
+\draw[help lines,step=0.5cm] (-1.4,-1.4) grid (1.4,1.4);
+\draw (0,0) circle [radius=1cm];
+\begin{scope}[axes]
+\draw[->] (-1.5,0) -- (1.5,0) node[right] {$x$} coordinate(x axis);
+\draw[->] (0,-1.5) -- (0,1.5) node[above] {$y$} coordinate(y axis);
+\foreach \x/\xtext in {-1, -.5/-\frac{1}{2}, 1}
+\draw[xshift=\x cm] (0pt,1pt) -- (0pt,-1pt) node[below,fill=white] {$\xtext$};
+\foreach \y/\ytext in {-1, -.5/-\frac{1}{2}, .5/\frac{1}{2}, 1}
+\draw[yshift=\y cm] (1pt,0pt) -- (-1pt,0pt) node[left,fill=white] {$\ytext$};
+\end{scope}
+\filldraw[fill=green!20,draw=anglecolor] (0,0) -- (3mm,0pt)
+arc [start angle=0, end angle=30, radius=3mm];
+\draw (15:2mm) node[anglecolor] {$\alpha$};
+\draw[important line,sincolor]
+(30:1cm) -- node[left=1pt,fill=white] {$\sin \alpha$} (30:1cm |- x axis);
+\draw[important line,coscolor]
+(30:1cm |- x axis) -- node[below=2pt,fill=white] {$\cos \alpha$} (0,0);
+\path [name path=upward line] (1,0) -- (1,1);
+\path [name path=sloped line] (0,0) -- (30:1.5cm);
+\draw [name intersections={of=upward line and sloped line, by=t}]
+[very thick,orange] (1,0) -- node [right=1pt,fill=white]
+{$\displaystyle \tan \alpha \color{black}=
+\frac{{\color{red}\sin \alpha}}{\color{blue}\cos \alpha}$} (t);
+\draw (0,0) -- (t);
+\draw[xshift=1.85cm]
+node[right,text width=6cm,information text]
+{
+The {\color{anglecolor} angle $\alpha$} is $30^\circ$ in the
+example ($\pi/6$ in radians). The {\color{sincolor}sine of
+$\alpha$}, which is the height of the red line, is
+\[
+{\color{sincolor} \sin \alpha} = 1/2.
+\]
+By the Theorem of Pythagoras ...
+};
+\end{tikzpicture}
+#+end_export
+
+#+begin_example latex
+\begin{tikzpicture}
+[scale=3,line cap=round,
+% Styles
+axes/.style=,
+important line/.style={very thick},
+information text/.style={rounded corners,fill=red!10,inner sep=1ex}]
+% Colors
+\colorlet{anglecolor}{green!50!black}
+\colorlet{sincolor}{red}
+\colorlet{tancolor}{orange!80!black}
+\colorlet{coscolor}{blue}
+% The graphic
+\draw[help lines,step=0.5cm] (-1.4,-1.4) grid (1.4,1.4);
+\draw (0,0) circle [radius=1cm];
+\begin{scope}[axes]
+\draw[->] (-1.5,0) -- (1.5,0) node[right] {$x$} coordinate(x axis);
+\draw[->] (0,-1.5) -- (0,1.5) node[above] {$y$} coordinate(y axis);
+\foreach \x/\xtext in {-1, -.5/-\frac{1}{2}, 1}
+\draw[xshift=\x cm] (0pt,1pt) -- (0pt,-1pt) node[below,fill=white] {$\xtext$};
+\foreach \y/\ytext in {-1, -.5/-\frac{1}{2}, .5/\frac{1}{2}, 1}
+\draw[yshift=\y cm] (1pt,0pt) -- (-1pt,0pt) node[left,fill=white] {$\ytext$};
+\end{scope}
+\filldraw[fill=green!20,draw=anglecolor] (0,0) -- (3mm,0pt)
+arc [start angle=0, end angle=30, radius=3mm];
+\draw (15:2mm) node[anglecolor] {$\alpha$};
+\draw[important line,sincolor]
+(30:1cm) -- node[left=1pt,fill=white] {$\sin \alpha$} (30:1cm |- x axis);
+\draw[important line,coscolor]
+(30:1cm |- x axis) -- node[below=2pt,fill=white] {$\cos \alpha$} (0,0);
+\path [name path=upward line] (1,0) -- (1,1);
+\path [name path=sloped line] (0,0) -- (30:1.5cm);
+\draw [name intersections={of=upward line and sloped line, by=t}]
+[very thick,orange] (1,0) -- node [right=1pt,fill=white]
+{$\displaystyle \tan \alpha \color{black}=
+\frac{{\color{red}\sin \alpha}}{\color{blue}\cos \alpha}$} (t);
+\draw (0,0) -- (t);
+\draw[xshift=1.85cm]
+node[right,text width=6cm,information text]
+{
+The {\color{anglecolor} angle $\alpha$} is $30^\circ$ in the
+example ($\pi/6$ in radians). The {\color{sincolor}sine of
+$\alpha$}, which is the height of the red line, is
+\[
+{\color{sincolor} \sin \alpha} = 1/2.
+\]
+By the Theorem of Pythagoras ...
+};
+\end{tikzpicture}
+#+end_example
+
+** Pics: The Angle Revisited
+# - [[file:~/myDrive/org/pgfmanual.pdf::48]]
+
+Karl expects that the code of certain parts of the picture he created
+might be so useful that he might wish to reuse them in the future. A natural
+thing to do is to create TEX macros that store the code he wishes to reuse.
+However, TikZ offers another way that is integrated directly into its
+parser: pics!
+
+A “pic” is “not quite a full picture”, hence the short name. The idea is
+that a pic is simply some code that you can add to a picture at different
+places using the =pic= command whose syntax is almost identical to the =node=
+command. The main difference is that instead of specifying some text in
+curly braces that should be shown, you specify the name of a predefined
+picture that should be shown.
+
+Defining new pics is easy enough, see Section 18, but right now we just
+want to use one such predefined pic: the =angle= pic. As the name suggests,
+it is a small drawing of an angle consisting of a little wedge and an arc
+together with some text (Karl needs to load the =angles= library and the
+=quotes= for the following examples). What makes this pic useful is the
+fact that the size of the wedge will be computed automatically.
+
+The =angle= pic draws an angle between the two lines BA and BC, where A, B,
+and C are three coordinates. In our case, B is the origin, A is somewhere
+on the /x/-axis and C is somewhere on a line at 30 {{{degree}}}.
+
+#+begin_export latex
+\begin{tikzpicture}[scale=3]
+\coordinate (A) at (1,0);
+\coordinate (B) at (0,0);
+\coordinate (C) at (30:1cm);
+\draw (A) -- (B) -- (C)
+pic [draw=green!50!black, fill=green!20, angle radius=9mm,
+"$\alpha$"] {angle = A--B--C};
+\end{tikzpicture}
+#+end_export
+
+#+begin_example latex
+\begin{tikzpicture}[scale=3]
+\coordinate (A) at (1,0);
+\coordinate (B) at (0,0);
+\coordinate (C) at (30:1cm);
+\draw (A) -- (B) -- (C)
+pic [draw=green!50!black, fill=green!20, angle radius=9mm,
+"$\alpha$"] {angle = A--B--C};
+\end{tikzpicture}
+#+end_example
+
+
+Let us see, what is happening here. First we have specified three
+coordinates using the =\coordinate= command. It allows us to name a
+specific coordinate in the picture. Then comes something that starts as a
+normal =\draw=, but then comes the =pic= command. This command gets lots of
+options and, in curly braces, comes the most important point: We specify
+that we want to add an =angle= pic and this angle should be between the points
+we named /A/, /B/, and /C/ (we could use other names). Note that the text that
+we want to be shown in the pic is specified in quotes inside the options
+of the =pic=, not inside the curly braces.
+
+To learn more about pics, please see Section 18.

@@ -1,0 +1,17 @@
+:ORG_MODE_SETUP:
+#+title: Tikz & pgf Manual - for version 3.1.9a
+#+author: [[mailto:manuel.fuica.morales@gmail.com][manuel.fuica.morales@gmail.com]]
+#+language: en
+#+OPTIONS: toc:4
+:END:
+:LATEX_HEADERS:
+#+LATEX_CLASS: article
+#+LATEX_CLASS_OPTIONS: [a4paper]
+#+LATEX_HEADER: \usepackage{tikz}
+#+LATEX_HEADER: \usetikzlibrary{intersections,arrows.meta,angles,quotes,petri,positioning}
+:END:
+:MACROS:
+#+MACRO: langle \(\langle\)
+#+MACRO: rangle \(\rangle\)
+#+MACRO: degree \(^\circ\)
+:END:
