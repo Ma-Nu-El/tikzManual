@@ -1,10 +1,38 @@
 #+INCLUDE: "config.org"
 #+subtitle: Tutorial: A Picture for Karl’s Students
+#+LATEX_HEADER: \usetikzlibrary{intersections,arrows.meta,angles,quotes}
 
 # The file:
 # - [[file:~/myDrive/org/pgfmanual.pdf]]
 # - [[file:~/myDrive/org/pgfmanual.pdf::30]]
 
+
+
+* TOC :TOC_1:noexport:
+- [[#example-a-house-draw-with-just-one-line][Example: a house draw with just one line.]]
+- [[#tutorial-a-picture-for-karls-students][Tutorial: A Picture for Karl’s Students]]
+- [[#intro][Intro]]
+- [[#problem-statement][Problem Statement]]
+- [[#setting-up-the-environment][Setting up the Environment]]
+- [[#straight-path-construction][Straight Path Construction]]
+- [[#curved-path-construction][Curved Path Construction]]
+- [[#circle-path-construction][Circle Path Construction]]
+- [[#rectangle-path-construction][Rectangle Path Construction]]
+- [[#grid-path-construction][Grid Path Construction]]
+- [[#adding-a-touch-of-style][Adding a Touch of Style]]
+- [[#drawing-options][Drawing Options]]
+- [[#arc-path-construction][Arc Path Construction]]
+- [[#digression][Digression]]
+- [[#filling-and-drawing][Filling and Drawing]]
+- [[#shading][Shading]]
+- [[#specifying-coordinates][Specifying Coordinates]]
+- [[#intersecting-paths][Intersecting Paths]]
+- [[#adding-arrow-tips][Adding Arrow Tips]]
+- [[#scoping][Scoping]]
+- [[#transformations][Transformations]]
+- [[#repeating-things-for-loops][Repeating Things: For-Loops]]
+- [[#adding-text][Adding Text]]
+- [[#pics-the-angle-revisited][Pics: The Angle Revisited]]
 
 * Example: a house draw with just one line.
 :PROPERTIES:
@@ -32,7 +60,7 @@
 * Tutorial: A Picture for Karl’s Students
 # - [[file:~/myDrive/org/pgfmanual.pdf::31]]
 
-** Intro
+* Intro
 #+begin_quote
 This tutorial is intended for new users of TikZ. It does not give an
 exhaustive account of all the features of TikZ, just of those that you are
@@ -61,11 +89,11 @@ use to draw graphics with your mouse or tablet. Rather, it is more like a
 “graphics language”.
 #+end_quote
 
-** Problem Statement
+* Problem Statement
 # - [[file:~/myDrive/org/pgfmanual.pdf::31]]
 [The teacher wants to teach his students about sine and cosine.]
 
-** Setting up the Environment
+* Setting up the Environment
 # - [[file:~/myDrive/org/pgfmanual.pdf::31]]
 
 #+begin_export latex
@@ -76,11 +104,11 @@ We are working on
 \end{tikzpicture}
 #+end_export
 
-#+begin_example
-(1) \begin{tikzpicture}
-(2) \draw (-1.5,0) -- (1.5,0);
-(3) \draw (0,-1.5) -- (0,1.5);
-(4) \end{tikzpicture}
+#+begin_example -n latex
+\begin{tikzpicture}
+  \draw (-1.5,0) -- (1.5,0);
+  \draw (0,-1.5) -- (0,1.5);
+\end{tikzpicture}
 #+end_example
 
 - Second line: "a straight line from the point at position (−1.5, 0) to
@@ -91,18 +119,18 @@ Or in the old fashion way (=TeX=):
 
 #+begin_example
 \input tikz.tex
-\baselineskip=12pt
-\hsize=6.3truein
-\vsize=8.7truein
-We are working on
-\tikzpicture
-\draw (-1.5,0) -- (1.5,0);
-\draw (0,-1.5) -- (0,1.5);
-\endtikzpicture.
+  \baselineskip=12pt
+  \hsize=6.3truein
+  \vsize=8.7truein
+  We are working on
+  \tikzpicture
+    \draw (-1.5,0) -- (1.5,0);
+    \draw (0,-1.5) -- (0,1.5);
+  \endtikzpicture.
 \bye
 #+end_example
 
-** Straight Path Construction
+* Straight Path Construction
 # - [[file:~/myDrive/org/pgfmanual.pdf::31]]
 
 
@@ -139,7 +167,7 @@ defined inside this environment, so there is little chance that you will
 accidentally do something wrong here.
 #+end_quote
 
-** Curved Path Construction
+* Curved Path Construction
 # - [[file:~/myDrive/org/pgfmanual.pdf::33]]
 
 The next thing Karl wants to do is to draw the circle. For this, straight
@@ -206,7 +234,7 @@ first half circle to the picture:
 Karl is happy with the result, but finds specifying circles in this way to
 be extremely awkward. Fortunately, there is a much simpler way.
 
-** Circle Path Construction
+* Circle Path Construction
 # - [[file:~/myDrive/org/pgfmanual.pdf::34]]
 
 
@@ -268,7 +296,7 @@ And finally to get you circle you can:
 \end{tikzpicture}
 #+end_example
 
-** Rectangle Path Construction
+* Rectangle Path Construction
 # - [[file:~/myDrive/org/pgfmanual.pdf::34]]
 
 #+begin_quote
@@ -312,7 +340,7 @@ using the nice \draw command, when he learns that there is a grid
 path construction operation.
 #+end_quote
 
-** Grid Path Construction
+* Grid Path Construction
 # - [[file:~/myDrive/org/pgfmanual.pdf::35]]
 
 #+begin_quote
@@ -373,16 +401,16 @@ grid is drawn first and everything else on top.
 \end{tikzpicture}
 #+end_example
 
-** Adding a Touch of Style
+* Adding a Touch of Style
 :PROPERTIES:
 :ID:       553b85d9-48d0-47bd-b876-989bd5b56a2a
 :END:
 # - [[file:~/myDrive/org/pgfmanual.pdf::35]]
 Setting colors globally.
-** Drawing Options
+* Drawing Options
 # - [[file:~/myDrive/org/pgfmanual.pdf::36]]
 About dashed patterns and line thickness.
-** Arc Path Construction
+* Arc Path Construction
 # - [[file:~/myDrive/org/pgfmanual.pdf::36]]
 
 About drawing arcs
@@ -445,8 +473,8 @@ arc [start angle=0, end angle=315,
 x radius=1.75cm, y radius=1cm];
 #+end_example
 
-** Digression
-*** Clipping a Path
+* Digression
+** Clipping a Path
 :PROPERTIES:
 :ID:       0e6461e4-6009-494a-af25-1d3062d78a41
 :END:
@@ -526,7 +554,7 @@ And also change the shape of the zoom area. Here is a circle.
 \end{tikzpicture}
 #+end_example
 
-*** Parabola and Sine Path Construction
+** Parabola and Sine Path Construction
 # - [[file:~/myDrive/org/pgfmanual.pdf::38]]
 
 
@@ -566,7 +594,7 @@ A sine \tikz \draw[x=1ex,y=1ex] (0,0) sin (1.57,1); curve.
 (0,1) cos (1,0) sin (2,-1) cos (3,0) sin (4,1);
 #+end_example
 
-** Filling and Drawing
+* Filling and Drawing
 # - [[file:~/myDrive/org/pgfmanual.pdf::38]]
 
 #+begin_export latex
@@ -641,7 +669,7 @@ arc [start angle=0, end angle=30, radius=3mm] -- cycle;
 \end{tikzpicture}
 #+end_example
 
-** Shading
+* Shading
 # - [[file:~/myDrive/org/pgfmanual.pdf::39]]
 
 #+begin_export latex
@@ -697,7 +725,7 @@ arc [start angle=0, end angle=30, radius=3mm] -- cycle;
 \end{tikzpicture}
 #+end_example
 
-** Specifying Coordinates
+* Specifying Coordinates
 # - [[file:~/myDrive/org/pgfmanual.pdf::40]]
 
 Karl now wants to add the sine and cosine lines. He knows already that he can
@@ -852,7 +880,7 @@ economically like this (either with a single or a double =+=):
 \tikz \draw (0,0) rectangle +(1,1) (1.5,0) rectangle +(1,1);
 #+end_example
 
-** Intersecting Paths
+* Intersecting Paths
 # - [[file:~/myDrive/org/pgfmanual.pdf::41]]
 
 Karl is left with the line for \(tan \alpha\), which seems difficult to specify
@@ -888,7 +916,7 @@ the coordinate for later reference.
 [very thick,orange] (1,0) -- (x);
 #+end_example
 
-** Adding Arrow Tips
+* Adding Arrow Tips
 # - [[file:~/myDrive/org/pgfmanual.pdf::41]]
 
 Karl now wants to add the little arrow tips at the end of the axes. He
@@ -983,7 +1011,7 @@ arrow tip specification. For example, if Karl says =>=Stealth=, then he tells
 TikZ that he would like “stealth-fighter-like” arrow tips:
 
 #+begin_export latex
-\usetikzlibrary {arrows.meta}
+% \usetikzlibrary {arrows.meta}
 \begin{tikzpicture}[>=Stealth]
 \draw [->] (0,0) arc [start angle=180, end angle=30, radius=10pt];
 \draw [<<-,very thick] (1,0) -- (1.5cm,10pt) -- (2cm,0pt) -- (2.5cm,10pt);
@@ -991,14 +1019,14 @@ TikZ that he would like “stealth-fighter-like” arrow tips:
 #+end_export
 
 #+begin_example latex
-\usetikzlibrary {arrows.meta}
+% \usetikzlibrary {arrows.meta}
 \begin{tikzpicture}[>=Stealth]
 \draw [->] (0,0) arc [start angle=180, end angle=30, radius=10pt];
 \draw [<<-,very thick] (1,0) -- (1.5cm,10pt) -- (2cm,0pt) -- (2.5cm,10pt);
 \end{tikzpicture}
 #+end_example
 
-** Scoping
+* Scoping
 # - [[file:~/myDrive/org/pgfmanual.pdf::42]]
 
 Karl saw already that there are numerous graphic options that affect
@@ -1064,7 +1092,7 @@ whole path, but only to “everything following them on the path”. We will
 have a more detailed look at this in a moment. Nevertheless, all options
 given during a path construction apply only to this path.
 
-** Transformations
+* Transformations
 # - [[file:~/myDrive/org/pgfmanual.pdf::43]]
 
 When you specify a coordinate like =(1cm,1cm)=, where is that coordinate
@@ -1117,7 +1145,7 @@ not sufficient, the =cm= option allows you to apply an arbitrary
 transformation matrix. Karl’s students, by the way, do not know what
 a transformation matrix is.
 
-** Repeating Things: For-Loops
+* Repeating Things: For-Loops
 # - [[file:~/myDrive/org/pgfmanual.pdf::43]]
 
 Karl’s next aim is to add little ticks on the axes at positions −1, −1/2,
@@ -1255,7 +1283,7 @@ We can also nest loops to create interesting effects:
 The =\foreach= statement can do even trickier stuff, but the above gives
 the idea.
 
-** Adding Text
+* Adding Text
 # - [[file:~/myDrive/org/pgfmanual.pdf::45]]
 
 Karl is, by now, quite satisfied with the picture. However, the most
@@ -1607,7 +1635,7 @@ By the Theorem of Pythagoras ...
 \end{tikzpicture}
 #+end_example
 
-** Pics: The Angle Revisited
+* Pics: The Angle Revisited
 # - [[file:~/myDrive/org/pgfmanual.pdf::48]]
 
 Karl expects that the code of certain parts of the picture he created
