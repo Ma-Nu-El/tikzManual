@@ -1,3 +1,6 @@
+:PROPERTIES:
+:ID:       ca2df921-50e1-4408-9c71-0dfcc0f426f3
+:END:
 #+INCLUDE: "config.org"
 #+subtitle: Tutorial: Diagrams as Simple Graphs
 #+LATEX_HEADER: \usetikzlibrary{calc,arrows.meta,shapes.misc,graphs,positioning}

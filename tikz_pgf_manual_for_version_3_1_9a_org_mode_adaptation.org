@@ -7,6 +7,12 @@
 
 * TOC :TOC_4:noexport:
 - [[#notes][Notes]]
+- [[#introduction][Introduction]]
+- [[#part1][Part1]]
+- [[#part2][Part2]]
+- [[#part3][Part3]]
+- [[#part4][Part4]]
+- [[#part5][Part5]]
 
 * Table of contents of the book :noexport:
 # - [[file:~/myDrive/org/pgfmanual.pdf::3]]
@@ -23,3 +29,16 @@
 
 - I haven't been able to generate the TikZ images for =.html= output of this
   =.org= file; just the =.pdf= output for the moment.
+
+* Introduction
+- [[id:c68a3bc5-a47d-41b4-9bce-117d1b07f952][introduction.org]]
+* Part1
+- [[id:59e8f49f-c33f-492e-9f8b-023d402f9176][part1.org]]
+* Part2
+- [[id:3faffc01-5831-414a-9e02-7a0b49782a51][part2.org]]
+* Part3
+- [[id:832ec367-2811-4943-92ae-15de4b2cc681][part3.org]]
+* Part4
+- [[id:ca2df921-50e1-4408-9c71-0dfcc0f426f3][part4.org]]
+* Part5
+- [[id:b2d46c8e-2062-40ee-ba7d-651bc59d9bfb][part5.org]]

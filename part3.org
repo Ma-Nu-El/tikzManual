@@ -1,3 +1,6 @@
+:PROPERTIES:
+:ID:       832ec367-2811-4943-92ae-15de4b2cc681
+:END:
 #+INCLUDE: "config.org"
 #+subtitle: Tutorial: Euclid’s Amber Version of the Elements
 
